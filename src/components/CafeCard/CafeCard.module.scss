@@ -1,0 +1,188 @@
+@use '../../style/variables' as *;
+
+.card {
+  width: 330px;
+  min-width: 330px;
+
+  background-color: $grey-100;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid $grey-70;
+
+  display: flex;
+  flex-direction: column;
+
+}
+
+.imageWrapper {
+  position: relative;
+  width: 100%;
+  height: 331px;
+}
+
+.mainImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.favButton {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  background-color: #FFFFFFBF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.heartIcon {
+  width: 24px;
+  height: 24px;
+}
+
+.nameTag {
+  position: absolute;
+  bottom: 16px;
+  left: 16px;
+  background-color: #FFFFFFBF;
+  padding: 8px 16px;
+  border-radius: 10px;
+
+  font-family: Noto Sans;
+  font-size: 20px;
+  font-weight: 900;
+  line-height: 115%;
+  color: $grey-10;
+}
+
+.content {
+  padding: 16px 21px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+}
+
+.iconPin {
+  width: 24px;
+  height: 24px;
+  margin-right: 4px;
+  opacity: 0.6;
+}
+
+.stars {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  margin-right: 12px;
+}
+
+.starButton {
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  outline: none;
+  
+  transition: transform 0.1s;
+  &:active {
+    transform: scale(0.8);
+  }
+}
+
+.starIcon {
+  width: 24px;
+  height: 24px;
+  display: block;
+}
+
+.addressText {
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 135%;
+  color: $grey-10;
+  overflow: hidden;
+  padding-bottom: 8px;
+
+}
+
+.ratingValue {
+  font-weight: 600;
+  font-size: 18px;
+  line-height: 135%;
+  color: $grey-10;
+  margin-right: 6px;
+  font-family: Noto Sans;
+}
+
+.reviewsCount {
+  font-size: 16px;
+  line-height: 135%;
+  color: $grey-60;
+  font-weight: 400;
+  font-family: Noto Sans;
+}
+
+.priceContainer {
+  display: flex;
+  align-items: center;
+  gap: 1px;
+}
+
+.dollarActive img {
+  width: 24px;
+  height: 24px;
+  opacity: 1;
+}
+
+.dollarInactive img {
+  width: 24px;
+  height: 24px;
+  opacity: 0.3;
+  filter: grayscale(100%);
+}
+
+.footerRow {
+  display: flex;
+  align-items: center;
+  margin-top: 16px;
+  font-size: 18px;
+  font-weight: 600;
+  font-family: Noto Sans;
+  line-height: 135%;
+  gap: 8px;
+}
+
+.statusOpen {
+  color: $success-color;
+}
+
+.statusClosed {
+  color: $error-color;
+}
+
+.separator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.closingTime {
+  font-family: Noto Sans;
+  font-weight: 400;
+  font-size: 18px;
+  line-height: 135%;
+  color: $grey-20;
+}
+
