@@ -1,0 +1,4 @@
+namespaceName: front-ns
+
+frontCafe:
+  containerPort: 80
