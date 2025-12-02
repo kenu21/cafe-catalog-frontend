@@ -15,9 +15,12 @@ services:
       service: backend
 
   frontend:
-    build: .
-    image: image-front-cafe
-    container_name: container-front-cafe
+    build:
+      context: .
+      args:
+        REACT_APP_API_URL: http://backend/api/v1
+    image: image-front-cafe-dev
+    container_name: container-front-cafe-dev
     ports:
       - "${FRONTEND_LOCAL_PORT}:${FRONTEND_CONTAINER_PORT}"
     networks:
