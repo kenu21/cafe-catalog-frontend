@@ -1,15 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
 import styles from './Header.module.scss';
-import { SearchHero } from '../SearchHero/SearchHero.tsx'; 
+import { SearchHero } from '../SearchHero/SearchHero'; 
 
-export const Header: React.FC = () => {
+interface Props {
+  onFilterClick?: () => void;
+}
+
+export const Header: React.FC<Props> = ({ onFilterClick }) => {
 
   const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
-      if (window.scrollY > 300) {
+      if (window.scrollY > 400) {
         setIsScrolled(true);
       } else {
         setIsScrolled(false);
@@ -33,7 +37,8 @@ export const Header: React.FC = () => {
         </NavLink>
 
         <div className={`${styles.stickySearch} ${isScrolled ? styles.visible : ''}`}>
-           <SearchHero />
+
+           <SearchHero isSmall={true} onFilterClick={onFilterClick} />
         </div>
 
         <NavLink to="/Favourites" className={styles.navLinkButton}>

@@ -1,9 +1,14 @@
 import React from 'react';
 import styles from './SearchHero.module.scss';
 
-export const SearchHero: React.FC = () => {
+interface Props {
+  isSmall?: boolean;
+  onFilterClick?: () => void; 
+}
+
+export const SearchHero: React.FC<Props> = ({ isSmall = false, onFilterClick }) => {
   return (
-    <div className={styles.searchBlock}>
+    <div className={`${styles.searchBlock} ${isSmall ? styles.small : ''}`}>
       
       <div className={styles.inputWrapper}>
         <img src="img/icons/Magnifying_glass.svg" alt="search" className={styles.inputIcon} />
@@ -18,7 +23,7 @@ export const SearchHero: React.FC = () => {
         Search
       </button>
 
-      <button className={styles.filterBtn}>
+      <button className={styles.filterBtn} onClick={onFilterClick}>
         <img src="img/icons/Filter.svg" alt="filter" className={styles.filterIcon} />
       </button>
       

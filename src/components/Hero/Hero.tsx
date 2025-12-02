@@ -1,8 +1,12 @@
 import React from "react";
 import styles from "./Hero.module.scss";
-import { SearchHero } from "../SearchHero/SearchHero.tsx";
+import { SearchHero } from "../SearchHero/SearchHero";
 
-export const Hero: React.FC = () => {
+interface Props {
+  onFilterClick?: () => void;
+}
+
+export const Hero: React.FC<Props> = ({ onFilterClick }) => {
   return (
     <section className={styles.hero}>
       <img 
@@ -12,8 +16,8 @@ export const Hero: React.FC = () => {
       />
 
       <div className={styles.content}>
-        
-        <SearchHero />
+
+        <SearchHero onFilterClick={onFilterClick} />
 
         <h2 className={styles.title}>
           Find the best cafes & coffee <br />

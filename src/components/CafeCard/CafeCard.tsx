@@ -10,13 +10,16 @@ export const CafeCard: React.FC<Props> = ({ cafe }) => {
 
   const [rating, setRating] = useState(Math.round(cafe.rating));
   const [hover, setHover] = useState(0);
-
-  // useEffect(() => {
-  //   setRating(Math.round(cafe.rating));
-  // }, [cafe.rating]);
+  const [isFavorite, setIsFavorite] = useState(false);
 
   const handleRate = (value: number) => {
     setRating(value);
+  };
+
+  const toggleFavorite = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation(); 
+    setIsFavorite(!isFavorite);
   };
 
   const renderPrice = (priceLevel: number) => {
@@ -45,9 +48,16 @@ export const CafeCard: React.FC<Props> = ({ cafe }) => {
           alt={cafe.name} 
           className={styles.mainImage} 
         />
-        
-        <button className={styles.favButton} type="button">
-          <img src="/img/icons/Heart.svg" alt="Favorite" className={styles.heartIcon} />
+        <button 
+          className={styles.favButton} 
+          type="button" 
+          onClick={toggleFavorite}
+        >
+          <img 
+            src={isFavorite ? "/img/icons/Heart_Fill.svg" : "/img/icons/Heart.svg"} 
+            alt="Favorite" 
+            className={styles.heartIcon} 
+          />
         </button>
 
         <div className={styles.nameTag}>
@@ -56,7 +66,6 @@ export const CafeCard: React.FC<Props> = ({ cafe }) => {
       </div>
 
       <div className={styles.content}>
-        
         <div className={styles.row}>
           <img src="/img/icons/Geolocation.svg" alt="Location" className={styles.iconPin} />
           <span className={styles.addressText}>{cafe.address}</span>
@@ -96,14 +105,11 @@ export const CafeCard: React.FC<Props> = ({ cafe }) => {
           <span className={cafe.isOpen ? styles.statusOpen : styles.statusClosed}>
             {cafe.isOpen ? 'Open' : 'Closed'}
           </span>
-          
           <span className={styles.separator}>
             <img src="/img/icons/Arrow.svg" alt="" />
           </span>
-          
           <span className={styles.closingTime}>until {cafe.closingTime}</span>
         </div>
-
       </div>
     </article>
   );
