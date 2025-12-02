@@ -1,0 +1,30 @@
+services:
+  db:
+    extends:
+      file: ${COMPOSE_EXTENDS_PATH}
+      service: db
+
+  flyway:
+    extends:
+      file: ${COMPOSE_EXTENDS_PATH}
+      service: flyway
+
+  backend:
+    extends:
+      file: ${BACKEND_EXTENDS_PATH}
+      service: backend
+
+  frontend:
+    build: .
+    image: image-front-cafe
+    container_name: container-front-cafe
+    ports:
+      - "${FRONTEND_LOCAL_PORT}:${FRONTEND_CONTAINER_PORT}"
+    networks:
+      - cafenet
+    depends_on:
+      - backend
+
+networks:
+  cafenet:
+    name: cafenet
