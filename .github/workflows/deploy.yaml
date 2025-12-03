@@ -19,6 +19,24 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v6
 
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3.6.0
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build Docker image
+        run: |
+          docker build \
+            --build-arg REACT_APP_API_URL=http://cafe-back.back-ns.svc.cluster.local/api/v1 \
+            -t kenu21/image-front-cafe-prod:${{ github.sha }} \
+            -t kenu21/image-front-cafe-prod:latest .
+
+      - name: Push Docker image
+        run: |
+          docker push kenu21/image-front-cafe-prod:${{ github.sha }}
+          docker push kenu21/image-front-cafe-prod:latest
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -34,6 +52,7 @@ jobs:
       - name: Set up Helm
         uses: azure/setup-helm@v4.3.1
 
-      - name: Deploy backend
+      - name: Deploy frontend
         run: |
-          helm upgrade --install frontend-cafe ./frontend-cafe
+          helm upgrade --install frontend-cafe ./frontend-cafe \
+            --set frontCafe.image.tag=${{ github.sha }}
