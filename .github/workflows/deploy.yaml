@@ -54,5 +54,5 @@ jobs:
 
       - name: Deploy frontend
         run: |
-          helm upgrade --install frontend-cafe ./frontend-cafe
-            --set frontCafe.image.tag=${{ github.sha }} \
+          helm upgrade --install frontend-cafe ./frontend-cafe \
+            --set frontCafe.image.tag=${{ github.sha }}
