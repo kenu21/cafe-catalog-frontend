@@ -1,22 +1,160 @@
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import styles from './SearchHero.module.scss';
+
+import { searchCafes, getAllCafes } from '../../utils/cafeService'; 
+import type { Cafe } from '../../utils/Cafe';
+
+const POPULAR_CITIES = [
+  { name: 'Kyiv', count: 2345, img: '/img/cities/Kyiv.svg' },
+  { name: 'Lviv', count: 2545, img: '/img/cities/Lviv.svg' },
+  { name: 'Dnipro', count: 1345, img: '/img/cities/Dnipro.svg' },
+  { name: 'Odessa', count: 1245, img: '/img/cities/Odessa.svg' },
+  { name: 'Kharkiv', count: 945, img: '/img/cities/Kharkiv.svg' },
+  { name: 'Vinnytsia', count: 955, img: '/img/cities/Vinnytsia.svg' },
+];
 
 interface Props {
   isSmall?: boolean;
-  onFilterClick?: () => void; 
+  onFilterClick?: () => void;
 }
 
 export const SearchHero: React.FC<Props> = ({ isSmall = false, onFilterClick }) => {
+  const [query, setQuery] = useState('');
+  const [results, setResults] = useState<Cafe[]>([]);
+  const [recommendations, setRecommendations] = useState<Cafe[]>([]);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const navigate = useNavigate();
+  const wrapperRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    getAllCafes()
+      .then(data => setRecommendations(data.slice(0, 3)))
+      .catch(err => console.error("Failed to load recommendations", err));
+  }, []);
+
+  useEffect(() => {
+    if (!query.trim()) {
+      setResults([]);
+      setIsLoading(false);
+      return;
+    }
+
+    const timer = setTimeout(async () => {
+      setIsLoading(true);
+      try {
+        const data = await searchCafes(query);
+        setResults(data);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setIsLoading(false);
+      }
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [query]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (wrapperRef.current && !wrapperRef.current.contains(event.target as Node)) {
+        setShowDropdown(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const handleSelectCafe = (id: number) => {
+    navigate(`/cafe/${id}`);
+    setShowDropdown(false);
+  };
+
+  const handleSelectCity = (cityName: string) => {
+    setQuery(cityName);
+  };
+
   return (
-    <div className={`${styles.searchBlock} ${isSmall ? styles.small : ''}`}>
+    <div className={`${styles.searchBlock} ${isSmall ? styles.small : ''}`} ref={wrapperRef}>
       
-      <div className={styles.inputWrapper}>
-        <img src="img/icons/Magnifying_glass.svg" alt="search" className={styles.inputIcon} />
+      <div className={`${styles.inputWrapper} ${showDropdown ? styles.open : ''}`}>
+        <img src="/img/icons/Magnifying_glass.svg" alt="search" className={styles.inputIcon} />
         <input 
           type="text" 
           placeholder="Search by cafes name or location" 
-          className={styles.input} 
+          className={styles.input}
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          onFocus={() => setShowDropdown(true)}
         />
+
+        {showDropdown && (
+          <div className={styles.dropdown}>
+            
+            <div className={styles.columnLeft}>
+              {query.trim().length === 0 ? (
+                <>
+                  <div className={styles.headerLink}>
+                    <img src="/img/icons/cup.svg" alt="" style={{ width: 24 }} />
+                    <span>See all coffee shops</span>
+                    <img src="/img/icons/Arrow-right.svg" alt="" className={styles.arrowIcon} />
+                  </div>
+                  
+                  <div className={styles.sectionTitle}>Must be visited</div>
+                  
+                  {recommendations.map(cafe => (
+                    <div key={cafe.id} className={styles.resultItem} onClick={() => handleSelectCafe(cafe.id)}>
+                      <img src="/img/icons/Geolocation.svg" alt="" className={styles.pinIcon} />
+                      <div className={styles.itemInfo}>
+                        <span className={styles.itemName}>{cafe.name}</span>
+                        <span className={styles.itemAddress}>{cafe.address}</span>
+                      </div>
+                    </div>
+                  ))}
+                </>
+              ) : (
+                <>
+                  <div className={styles.sectionTitle}>Coffee shops found in "{query}"</div>
+                  
+                  {isLoading ? (
+                    <div className={styles.message}>Searching...</div>
+                  ) : results.length > 0 ? (
+                    results.map(cafe => (
+                      <div key={cafe.id} className={styles.resultItem} onClick={() => handleSelectCafe(cafe.id)}>
+                        <img src="/img/icons/Geolocation.svg" alt="" className={styles.pinIcon} />
+                        <div className={styles.itemInfo}>
+                          <span className={styles.itemName}>{cafe.name}</span>
+                          <span className={styles.itemAddress}>{cafe.address}</span>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className={styles.message}>No cafes found :(</div>
+                  )}
+                </>
+              )}
+            </div>
+
+            <div className={styles.columnRight}>
+              <div className={styles.sectionTitle}>Popular cities in Ukraine</div>
+              <div className={styles.citiesGrid}>
+                {POPULAR_CITIES.map(city => (
+                  <div key={city.name} className={styles.cityItem} onClick={() => handleSelectCity(city.name)}>
+                    <img src={city.img} alt={city.name} className={styles.cityImg} />
+                    <div className={styles.cityInfo}>
+                      <span className={styles.cityName}>{city.name}</span>
+                      <span className={styles.cityCount}>({city.count})</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+          </div>
+        )}
+
       </div>
 
       <button className={styles.searchBtn}>
@@ -24,7 +162,7 @@ export const SearchHero: React.FC<Props> = ({ isSmall = false, onFilterClick }) 
       </button>
 
       <button className={styles.filterBtn} onClick={onFilterClick}>
-        <img src="img/icons/Filter.svg" alt="filter" className={styles.filterIcon} />
+        <img src="/img/icons/Filter.svg" alt="filter" className={styles.filterIcon} />
       </button>
       
     </div>
