@@ -1,7 +1,11 @@
 import type { BackendResponse, Cafe } from '../utils/Cafe';
 import { mapBackendToFrontend } from '../utils/mapper';
 
-const API_URL = '/api/cafes'; 
+const normalizeBaseUrl = (baseUrl?: string): string =>
+  baseUrl ? baseUrl.replace(/\/$/, '') : '';
+
+const API_BASE_URL = normalizeBaseUrl(import.meta.env.REACT_APP_API_URL);
+const CAFES_ENDPOINT = `${API_BASE_URL}/cafes`;
 
 const getCafesRequest = async (params: Record<string, string | number>): Promise<Cafe[]> => {
   const queryParams = new URLSearchParams();
@@ -9,7 +13,8 @@ const getCafesRequest = async (params: Record<string, string | number>): Promise
     queryParams.append(key, value.toString());
   });
 
-  const url = `${API_URL}?${queryParams.toString()}`;
+  const queryString = queryParams.toString();
+  const url = queryString ? `${CAFES_ENDPOINT}?${queryString}` : CAFES_ENDPOINT;
   
   const response = await fetch(url);
   if (!response.ok) {
