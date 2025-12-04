@@ -5,8 +5,7 @@ metadata:
   namespace: {{ .Values.namespaceName }}
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /$1
-    nginx.ingress.kubernetes.io/upstream-vhost: cafe-back.back-ns.svc.cluster.local
-    nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+    nginx.ingress.kubernetes.io/use-regex: "true"
 spec:
   ingressClassName: nginx
   rules:
