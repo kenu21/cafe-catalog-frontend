@@ -4,6 +4,7 @@ metadata:
   name: cafe-ingress
   namespace: {{ .Values.namespaceName }}
 spec:
+  ingressClassName: nginx
   rules:
     - host: a5ebee413351c4d3c813802be3f62648-1994074749.us-east-1.elb.amazonaws.com
       http:
@@ -15,7 +16,6 @@ spec:
                 name: cafe-back
                 port:
                   number: 80
-
           - path: /
             pathType: Prefix
             backend:
