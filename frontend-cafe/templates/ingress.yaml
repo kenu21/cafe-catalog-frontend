@@ -4,14 +4,15 @@ metadata:
   name: cafe-ingress
   namespace: front-ns
   annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /$1
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/use-regex: "true"
 spec:
   ingressClassName: nginx
   rules:
     - host: a5ebee413351c4d3c813802be3f62648-1994074749.us-east-1.elb.amazonaws.com
       http:
         paths:
-          - path: /(.*)
+          - path: /
             pathType: Prefix
             backend:
               service:
@@ -19,7 +20,7 @@ spec:
                 port:
                   number: 80
 
-          - path: /cafe-back/?(.*)
+          - path: /cafe-back(/|$)(.*)
             pathType: Prefix
             backend:
               service:
