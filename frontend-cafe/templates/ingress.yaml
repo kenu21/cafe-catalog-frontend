@@ -4,7 +4,7 @@ metadata:
   name: cafe-ingress
   namespace: front-ns
   annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
     nginx.ingress.kubernetes.io/use-regex: "true"
 spec:
   ingressClassName: nginx
@@ -20,7 +20,7 @@ spec:
                 port:
                   number: 80
 
-          - path: /cafe-back(/|$)(.*)
+          - path: /cafe-back
             pathType: Prefix
             backend:
               service:
