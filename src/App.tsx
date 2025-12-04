@@ -5,7 +5,7 @@ import { Header } from './components/Header/Header';
 import { Hero } from './components/Hero/Hero';
 import { Footer } from './components/Footer/Footer';
 import { CafeSection } from './components/CafeSection/CafeSection';
-
+import { FilterModal, type FilterState } from './components/Filter/Filter';
 import type { Cafe } from './utils/Cafe';
 import { getBestOffers, getChosenCafes, getNewCafes } from './utils/cafeService'; 
 
@@ -16,6 +16,8 @@ export const App = () => {
   
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
+
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   useEffect(() => {
     const loadData = async () => {
@@ -43,6 +45,13 @@ export const App = () => {
     loadData();
   }, []);
 
+  const handleOpenFilters = () => setIsFilterOpen(true);
+  const handleCloseFilters = () => setIsFilterOpen(false);
+  
+  const handleApplyFilters = (filters: FilterState) => {
+    console.log("Застосовані фільтри:", filters);
+  };
+
   if (isLoading) {
     return (
       <div className="App">
@@ -69,11 +78,11 @@ export const App = () => {
 
   return (
     <div className='App'>
-      <Header />
+      <Header onFilterClick={handleOpenFilters} />
       
       <main>
         <div className='container'>
-          <Hero />
+          <Hero onFilterClick={handleOpenFilters} />
 
           {bestOffers.length > 0 && (
             <CafeSection 
@@ -106,6 +115,12 @@ export const App = () => {
       </main>
       
       <Footer />
+
+      <FilterModal 
+        isOpen={isFilterOpen} 
+        onClose={handleCloseFilters} 
+        onApply={handleApplyFilters}
+      />
     </div>
   );
 };
