@@ -28,7 +28,7 @@ jobs:
       - name: Build Docker image
         run: |
           docker build \
-            --build-arg REACT_APP_API_URL=http://cafe-back.back-ns.svc.cluster.local/api/v1 \
+            --build-arg REACT_APP_API_URL=http://cafe-back/api/v1 \
             -t kenu21/image-front-cafe-prod:${{ github.sha }} \
             -t kenu21/image-front-cafe-prod:latest .
 

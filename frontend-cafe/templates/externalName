@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: cafe-back
+  namespace: {{ .Values.namespaceName }}
+spec:
+  type: ExternalName
+  externalName: cafe-back.back-ns.svc.cluster.local

@@ -1,0 +1,27 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: cafe-ingress
+  namespace: {{ .Values.namespaceName }}
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
+spec:
+  rules:
+    - host: a5ebee413351c4d3c813802be3f62648-1994074749.us-east-1.elb.amazonaws.com
+      http:
+        paths:
+          - path: /cafe-back/(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: cafe-back
+                port:
+                  number: {{ .Values.frontCafe.containerPort }}
+
+          - path: /(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: cafe-front-service
+                port:
+                  number: {{ .Values.frontCafe.containerPort }}
