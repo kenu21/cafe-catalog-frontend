@@ -17,7 +17,6 @@ spec:
             backend:
               service:
                 name: cafe-back
-                namespace: back-ns
                 port:
                   number: 80
           - path: /(.*)
