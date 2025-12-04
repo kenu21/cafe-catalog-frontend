@@ -16,7 +16,8 @@ spec:
             pathType: ImplementationSpecific
             backend:
               service:
-                name: cafe-back.back-ns
+                name: cafe-back
+                namespace: back-ns
                 port:
                   number: 80
           - path: /(.*)
