@@ -28,7 +28,7 @@ jobs:
       - name: Build Docker image
         run: |
           docker build \
-            --build-arg REACT_APP_API_URL=http://a5ebee413351c4d3c813802be3f62648-1994074749.us-east-1.elb.amazonaws.com/cafe-back/api/v1 \
+            --build-arg REACT_APP_API_URL=http://aa0059100549f4ddba101319275ed534-554976623.us-east-1.elb.amazonaws.com/cafe-back/api/v1 \
             -t kenu21/image-front-cafe-prod:${{ github.sha }} \
             -t kenu21/image-front-cafe-prod:latest .
 
