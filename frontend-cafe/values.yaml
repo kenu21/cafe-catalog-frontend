@@ -1,0 +1,7 @@
+namespaceName: front-ns
+
+frontCafe:
+  containerPort: 80
+  image:
+    repository: kenu21/image-front-cafe-prod
+    tag:

@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cafe-front-deployment
+  namespace: {{ .Values.namespaceName }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: front-cafe
+  template:
+    metadata:
+      labels:
+        app: front-cafe
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: role
+                    operator: In
+                    values:
+                      - front
+      containers:
+        - name: front-container-prod
+          image: "{{ .Values.frontCafe.image.repository }}:{{ .Values.frontCafe.image.tag }}"
+          ports:
+            - containerPort: {{ .Values.frontCafe.containerPort }}
