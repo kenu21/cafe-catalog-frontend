@@ -61,7 +61,7 @@ jobs:
         run: |
           helm upgrade --install ingress-nginx ingress-nginx/ingress-nginx \
             --namespace ingress-nginx \
-            --create-namespace
+            --create-namespace \
             --version 4.14.0
 
       - name: Update Helm dependencies
