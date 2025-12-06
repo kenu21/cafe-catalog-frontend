@@ -5,8 +5,8 @@ metadata:
   namespace: {{ .Values.namespaceName }}
 spec:
   selector:
-    app: front-cafe
+    app: {{ .Values.frontCafe.label }}
   ports:
-    - port: 80
-      targetPort: {{ .Values.frontCafe.containerPort }}
+    - port: {{ .Values.frontCafe.containers.containerPort }}
+      targetPort: {{ .Values.frontCafe.containers.containerPort }}
   type: ClusterIP
