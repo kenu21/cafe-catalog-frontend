@@ -1,7 +1,12 @@
 namespaceName: front-ns
 
 frontCafe:
-  containerPort: 80
-  image:
-    repository: kenu21/image-front-cafe-prod
-    tag:
+  replicas: 1
+  label: front-cafe
+  name: front-cafe-service
+  containers:
+    name: front-cafe-container-prod
+    containerPort: 80
+    image:
+      repository: kenu21/image-front-cafe-prod
+      tag:
