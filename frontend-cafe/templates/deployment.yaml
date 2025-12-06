@@ -1,17 +1,17 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: cafe-front-deployment
+  name: front-cafe-deployment
   namespace: {{ .Values.namespaceName }}
 spec:
-  replicas: 1
+  replicas: {{ .Values.frontCafe.replicas }}
   selector:
     matchLabels:
-      app: front-cafe
+      app: {{ .Values.frontCafe.label }}
   template:
     metadata:
       labels:
-        app: front-cafe
+        app: {{ .Values.frontCafe.label }}
     spec:
       affinity:
         nodeAffinity:
@@ -23,7 +23,15 @@ spec:
                     values:
                       - front
       containers:
-        - name: front-container-prod
-          image: "{{ .Values.frontCafe.image.repository }}:{{ .Values.frontCafe.image.tag }}"
+        - name: {{ .Values.frontCafe.containers.name }}
+          image: "{{ .Values.frontCafe.containers.image.repository }}:{{ .Values.frontCafe.containers.image.tag }}"
           ports:
-            - containerPort: {{ .Values.frontCafe.containerPort }}
+            - containerPort: {{ .Values.frontCafe.containers.containerPort }}
+          readinessProbe:
+            httpGet:
+              path: /
+              port: {{ .Values.frontCafe.containers.containerPort }}
+            initialDelaySeconds: {{ .Values.frontCafe.containers.initialDelaySeconds }}
+            periodSeconds: {{ .Values.frontCafe.containers.periodSeconds }}
+            timeoutSeconds: {{ .Values.frontCafe.containers.timeoutSeconds }}
+            failureThreshold: {{ .Values.frontCafe.containers.failureThreshold }}
