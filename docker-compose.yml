@@ -18,9 +18,9 @@ services:
     build:
       context: .
       args:
-        REACT_APP_API_URL: http://localhost:${BACKEND_LOCAL_PORT}/api/v1
-    image: image-front-cafe-dev:latest
-    container_name: container-front-cafe-dev
+        REACT_APP_API_URL: http://localhost:${BACKEND_LOCAL_PORT}${CONTEXT_PATH}
+    image: cafe-front-dev-image:latest
+    container_name: cafe-front-dev-container
     ports:
       - "${FRONTEND_LOCAL_PORT}:${FRONTEND_CONTAINER_PORT}"
     networks:
