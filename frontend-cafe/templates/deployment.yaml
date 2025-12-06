@@ -27,3 +27,11 @@ spec:
           image: "{{ .Values.frontCafe.containers.image.repository }}:{{ .Values.frontCafe.containers.image.tag }}"
           ports:
             - containerPort: {{ .Values.frontCafe.containers.containerPort }}
+          readinessProbe:
+            httpGet:
+              path: /
+              port: {{ .Values.frontCafe.containers.containerPort }}
+            initialDelaySeconds: {{ .Values.frontCafe.containers.initialDelaySeconds }}
+            periodSeconds: {{ .Values.frontCafe.containers.periodSeconds }}
+            timeoutSeconds: {{ .Values.frontCafe.containers.timeoutSeconds }}
+            failureThreshold: {{ .Values.frontCafe.containers.failureThreshold }}
