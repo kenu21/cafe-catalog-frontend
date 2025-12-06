@@ -5,8 +5,12 @@ frontCafe:
   label: front-cafe
   name: front-cafe-service
   containers:
-    name: front-cafe-container-prod
+    name: cafe-front-prod-container
     containerPort: 80
+    initialDelaySeconds: 5
+    periodSeconds: 5
+    timeoutSeconds: 2
+    failureThreshold: 10
     image:
-      repository: kenu21/image-front-cafe-prod
+      repository: kenu21/cafe-front-prod-image
       tag:
