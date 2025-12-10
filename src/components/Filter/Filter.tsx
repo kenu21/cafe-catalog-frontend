@@ -1,71 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState } from 'react';
 import styles from './Filter.module.scss';
-
-const TIME_OPTIONS = Array.from({ length: 19 * 2 }, (_, i) => {
-  const totalMinutes = (5 * 60) + (i * 30); 
-  const h = Math.floor(totalMinutes / 60);
-  const m = totalMinutes % 60;
-  const suffix = h < 12 ? 'a.m.' : 'p.m.';
-  const displayH = h > 12 ? h - 12 : h;
-  return `${displayH}:${m === 0 ? '00' : m} ${suffix}`;
-});
-
-interface TimeSelectProps {
-  label: string;
-  value: string;
-  onChange: (val: string) => void;
-}
-
-const TimeSelect: React.FC<TimeSelectProps> = ({ label, value, onChange }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const wrapperRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (wrapperRef.current && !wrapperRef.current.contains(event.target as Node)) {
-        setIsOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  return (
-    <div className={styles.timeInput} ref={wrapperRef}>
-      <label>{label}</label>
-      <div 
-        className={`${styles.customSelect} ${isOpen ? styles.open : ''}`} 
-        onClick={() => setIsOpen(!isOpen)}
-      >
-        <img src="/img/icons/clock.svg" alt="" className={styles.clockIcon} />
-        <span className={styles.selectedValue}>{value}</span>
-        <img 
-           src={isOpen ? "/img/icons/Up.svg" : "/img/icons/Bottom.svg"} 
-           alt="" 
-           className={styles.chevronIcon} 
-        />
-        {isOpen && (
-          <div className={styles.optionsList}>
-            {TIME_OPTIONS.map((time) => (
-              <div 
-                key={time} 
-                className={`${styles.optionItem} ${time === value ? styles.selected : ''}`}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onChange(time);
-                  setIsOpen(false);
-                }}
-              >
-                {time}
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
-  );
-};
-
+import { TimeSelect } from '../TimeSelect/TimeSelect';
 
 export interface FilterState {
   popular: string[];
@@ -86,7 +21,6 @@ interface Props {
 
 export const FilterModal: React.FC<Props> = ({ isOpen, onClose, onApply }) => {
   
-  // Стани
   const [popular, setPopular] = useState<string[]>([]);
   const [rating, setRating] = useState<number[]>([]);
   const [prices, setPrices] = useState<number[]>([]);
@@ -103,7 +37,6 @@ export const FilterModal: React.FC<Props> = ({ isOpen, onClose, onApply }) => {
   ];
   const visibleWorkStudy = isWorkStudyExpanded ? workStudyOptions : workStudyOptions.slice(0, 3);
 
-  // Логіка перемикання
   const toggleItem = <T,>(list: T[], setList: React.Dispatch<React.SetStateAction<T[]>>, item: T) => {
     if (list.includes(item)) {
       setList(list.filter(i => i !== item));
@@ -136,7 +69,6 @@ export const FilterModal: React.FC<Props> = ({ isOpen, onClose, onApply }) => {
     <div className={styles.overlay} onClick={onClose}>
       <div className={styles.modal} onClick={e => e.stopPropagation()}>
         
-        {/* HEADER */}
         <div className={styles.header}>
           <h2>Filters</h2>
           <button className={styles.closeBtn} onClick={onClose}>
@@ -144,10 +76,8 @@ export const FilterModal: React.FC<Props> = ({ isOpen, onClose, onApply }) => {
           </button>
         </div>
 
-        {/* CONTENT */}
         <div className={styles.content}>
           
-          {/* === 0. SELECTED FILTERS === */}
           {totalSelected > 0 && (
             <div className={styles.section}>
               <div className={styles.selectedHeader}>
@@ -200,7 +130,6 @@ export const FilterModal: React.FC<Props> = ({ isOpen, onClose, onApply }) => {
             </div>
           )}
 
-          {/* 1. POPULAR */}
           <div className={styles.section}>
             <h3>Popular</h3>
             <div className={styles.tags}>
@@ -216,7 +145,6 @@ export const FilterModal: React.FC<Props> = ({ isOpen, onClose, onApply }) => {
             </div>
           </div>
 
-          {/* 2. RATING */}
           <div className={styles.section}>
             <h3>Visitors rating</h3>
             <div className={styles.ratingGrid}>
@@ -233,7 +161,6 @@ export const FilterModal: React.FC<Props> = ({ isOpen, onClose, onApply }) => {
             </div>
           </div>
 
-          {/* 3. PRICES */}
           <div className={styles.section}>
             <h3>Prices</h3>
             <div className={styles.priceToggle}>
@@ -249,16 +176,14 @@ export const FilterModal: React.FC<Props> = ({ isOpen, onClose, onApply }) => {
             </div>
           </div>
 
-          {/* 4. OPENING HOURS (ОНОВЛЕНО) */}
           <div className={styles.section}>
             <h3>Opening hours</h3>
             <div className={styles.timeRow}>
-               <TimeSelect label="To" value={timeTo} onChange={setTimeTo} />
                <TimeSelect label="From" value={timeFrom} onChange={setTimeFrom} />
+               <TimeSelect label="To" value={timeTo} onChange={setTimeTo} />
             </div>
           </div>
 
-          {/* 5. COFFEE QUALITY */}
           <div className={styles.section}>
             <h3>Coffee Quality & Style</h3>
             <div className={styles.tags}>

@@ -17,9 +17,10 @@ const POPULAR_CITIES = [
 interface Props {
   isSmall?: boolean;
   onFilterClick?: () => void;
+  filterCount?: number;
 }
 
-export const SearchHero: React.FC<Props> = ({ isSmall = false, onFilterClick }) => {
+export const SearchHero: React.FC<Props> = ({ isSmall = false, onFilterClick, filterCount = 0 }) => {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<Cafe[]>([]);
   const [recommendations, setRecommendations] = useState<Cafe[]>([]);
@@ -36,17 +37,17 @@ export const SearchHero: React.FC<Props> = ({ isSmall = false, onFilterClick }) 
   }, []);
 
   useEffect(() => {
-    if (!query.trim()) {
-      setResults([]);
-      setIsLoading(false);
-      return;
-    }
-
     const timer = setTimeout(async () => {
+      if (!query.trim()) {
+        setResults([]);
+        setIsLoading(false);
+        return;
+      }
+
       setIsLoading(true);
       try {
         const data = await searchCafes(query);
-        setResults(data);
+        setResults(data.slice(0, 5)); 
       } catch (error) {
         console.error(error);
       } finally {
@@ -67,13 +68,30 @@ export const SearchHero: React.FC<Props> = ({ isSmall = false, onFilterClick }) 
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  const handleSearchSubmit = () => {
+    if (query.trim()) {
+      setShowDropdown(false);
+      navigate(`/search?query=${encodeURIComponent(query)}`);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleSearchSubmit();
+    }
+  };
+
   const handleSelectCafe = (id: number) => {
     navigate(`/cafe/${id}`);
     setShowDropdown(false);
   };
 
   const handleSelectCity = (cityName: string) => {
-    setQuery(cityName);
+    setQuery(cityName); 
+    
+    navigate(`/search?query=${encodeURIComponent(cityName)}`);
+    
+    setShowDropdown(true); 
   };
 
   return (
@@ -88,6 +106,7 @@ export const SearchHero: React.FC<Props> = ({ isSmall = false, onFilterClick }) 
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onFocus={() => setShowDropdown(true)}
+          onKeyDown={handleKeyDown}
         />
 
         {showDropdown && (
@@ -96,7 +115,7 @@ export const SearchHero: React.FC<Props> = ({ isSmall = false, onFilterClick }) 
             <div className={styles.columnLeft}>
               {query.trim().length === 0 ? (
                 <>
-                  <div className={styles.headerLink}>
+                  <div className={styles.headerLink} onClick={() => navigate('/search')}>
                     <img src="/img/icons/cup.svg" alt="" style={{ width: 24 }} />
                     <span>See all coffee shops</span>
                     <img src="/img/icons/Arrow-right.svg" alt="" className={styles.arrowIcon} />
@@ -145,24 +164,25 @@ export const SearchHero: React.FC<Props> = ({ isSmall = false, onFilterClick }) 
                     <img src={city.img} alt={city.name} className={styles.cityImg} />
                     <div className={styles.cityInfo}>
                       <span className={styles.cityName}>{city.name}</span>
-                      <span className={styles.cityCount}>({city.count})</span>
+                      {city.count && <span className={styles.cityCount}>({city.count})</span>}
                     </div>
                   </div>
                 ))}
               </div>
             </div>
-
           </div>
         )}
-
       </div>
 
-      <button className={styles.searchBtn}>
+      <button className={styles.searchBtn} onClick={handleSearchSubmit}>
         Search
       </button>
 
       <button className={styles.filterBtn} onClick={onFilterClick}>
         <img src="/img/icons/Filter.svg" alt="filter" className={styles.filterIcon} />
+        {filterCount > 0 && (
+          <span className={styles.filterBadge}>{filterCount}</span>
+        )}
       </button>
       
     </div>

@@ -85,6 +85,9 @@
   align-items: center;
   gap: 3px;
   margin-right: 12px;
+
+  pointer-events: none;
+  user-select: none;
 }
 
 .starButton {

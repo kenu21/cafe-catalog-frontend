@@ -1,0 +1,36 @@
+@use '../../style/variables' as *;
+
+.pageWrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: #F9F7F5;
+}
+
+.mainContent {
+  flex: 1;
+}
+
+.loadingContainer, .errorContainer {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 50vh;
+  
+  h2 {
+    font-family: 'Oswald', sans-serif;
+    color: $grey-20;
+  }
+}
+
+.errorContainer h2 {
+  color: $error-color;
+}
+
+.emptyState {
+  text-align: center;
+  padding: 40px;
+  color: $grey-60;
+  font-size: 18px;
+}
