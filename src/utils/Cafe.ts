@@ -1,15 +1,15 @@
 export interface BackendCafe {
   name: string;
   photoLink: string;
-  priceRating: number;    
+  priceRating: number;
   openingHours: string;
   rating: number;
-  votesCount: number;     
-  addressEntity: {
+  votesCount: number;
+  addressDtoResponse: { 
     buildingNumber: string;
-    streetEntity: {
+    streetDtoResponse: {
       name: string;
-      cityEntity: {
+      cityDtoResponse: { 
         name: string;
       }
     }

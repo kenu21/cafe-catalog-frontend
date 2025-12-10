@@ -64,11 +64,11 @@ const getScheduleStatus = (openingHours: string) => {
 };
 
 export const mapBackendToFrontend = (item: BackendCafe, index: number): Cafe => {
-  const street = item.addressEntity?.streetEntity?.name || '';
-  const building = item.addressEntity?.buildingNumber || '';
-  const city = item.addressEntity?.streetEntity?.cityEntity?.name || '';
+  const street = item.addressDtoResponse?.streetDtoResponse?.name || '';
+  const building = item.addressDtoResponse?.buildingNumber || '';
+  const city = item.addressDtoResponse?.streetDtoResponse?.cityDtoResponse?.name || '';
   
-  const fullAddress = `${city}, ${street} ${building}`;
+  const fullAddress = [city, street, building].filter(Boolean).join(', ').replace(', ' + building, ' ' + building);
 
   const { isOpen, closingTime } = getScheduleStatus(item.openingHours);
 
