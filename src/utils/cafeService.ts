@@ -5,7 +5,7 @@ import type { FilterState } from '../components/Filter/Filter';
 const normalizeBaseUrl = (baseUrl?: string): string =>
   baseUrl ? baseUrl.replace(/\/$/, '') : '';
 
-const API_BASE_URL = normalizeBaseUrl(import.meta.env.REACT_APP_API_URL);
+const API_BASE_URL = normalizeBaseUrl(import.meta.env.REACT_APP_API_URL) || '/api';
 const CAFES_ENDPOINT = `${API_BASE_URL}/cafes`;
 
 const getCafesRequest = async (params: Record<string, string | number>): Promise<Cafe[]> => {
