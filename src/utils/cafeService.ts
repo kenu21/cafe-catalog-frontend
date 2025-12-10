@@ -1,10 +1,11 @@
 import type { BackendResponse, Cafe } from '../utils/Cafe';
 import { mapBackendToFrontend } from '../utils/mapper';
+import type { FilterState } from '../components/Filter/Filter';
 
 const normalizeBaseUrl = (baseUrl?: string): string =>
   baseUrl ? baseUrl.replace(/\/$/, '') : '';
 
-const API_BASE_URL = normalizeBaseUrl(import.meta.env.REACT_APP_API_URL);
+const API_BASE_URL = normalizeBaseUrl(import.meta.env.REACT_APP_API_URL) || '/api';
 const CAFES_ENDPOINT = `${API_BASE_URL}/cafes`;
 
 const getCafesRequest = async (params: Record<string, string | number>): Promise<Cafe[]> => {
@@ -58,9 +59,54 @@ export const getNewCafes = async (): Promise<Cafe[]> => {
 
 export const searchCafes = async (query: string): Promise<Cafe[]> => {
   if (!query) return [];
-  const all = await getAllCafes();
-  return all.filter(cafe => 
-    cafe.name.toLowerCase().includes(query.toLowerCase()) || 
-    cafe.address.toLowerCase().includes(query.toLowerCase())
-  ).slice(0, 5);
+
+  const url = `${CAFES_ENDPOINT}/search?query=${encodeURIComponent(query)}`;
+  
+  const response = await fetch(url);
+
+  if (!response.ok) {
+    console.error(`Search error: ${response.status}`);
+    return [];
+  }
+  
+  const data: BackendResponse = await response.json();
+  const list = Array.isArray(data) ? data : data.content;
+  
+  return list.map(mapBackendToFrontend);
+};
+
+export const filterCafes = async (filters: FilterState): Promise<Cafe[]> => {
+  const params = new URLSearchParams();
+
+  const allTags = [
+    ...filters.popular, 
+    ...filters.coffeeStyle, 
+    ...filters.foodMenu, 
+    ...filters.workStudy
+  ];
+  allTags.forEach(tag => params.append('tags', tag));
+
+  filters.prices.forEach(p => params.append('priceRating', p.toString()));
+
+  if (filters.rating.length > 0) {
+    const minRating = Math.min(...filters.rating);
+    params.append('rating', minRating.toString());
+  }
+
+  if (filters.timeFrom && filters.timeFrom !== '9:00 a.m.') {
+    params.append('openingHours', filters.timeFrom);
+  }
+
+  const url = `${CAFES_ENDPOINT}/filter?${params.toString()}`;
+  
+  const response = await fetch(url);
+  if (!response.ok) {
+    console.error(`Filter error: ${response.status}`);
+    return [];
+  }
+
+  const data: BackendResponse = await response.json();
+  const list = Array.isArray(data) ? data : data.content;
+
+  return list.map(mapBackendToFrontend);
 };

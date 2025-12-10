@@ -13,7 +13,7 @@ export const Header: React.FC<Props> = ({ onFilterClick }) => {
 
   useEffect(() => {
     const handleScroll = () => {
-      if (window.scrollY > 400) {
+      if (window.scrollY > 300) {
         setIsScrolled(true);
       } else {
         setIsScrolled(false);
