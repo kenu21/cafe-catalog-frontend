@@ -1,6 +1,7 @@
 import type { BackendCafe, Cafe } from './Cafe';
 
 const timeToMinutes = (timeStr: string): number => {
+  if (!timeStr) return 0;
   const [h, m] = timeStr.split(':').map(Number);
   return h * 60 + m;
 };
@@ -81,6 +82,7 @@ export const mapBackendToFrontend = (item: BackendCafe, index: number): Cafe => 
     reviews: item.votesCount,
     price: item.priceRating,
     isOpen: isOpen,
-    closingTime: closingTime
+    closingTime: closingTime,
+    tags: []
   };
 };
