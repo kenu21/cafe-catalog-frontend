@@ -69,7 +69,7 @@ export const mapBackendToFrontend = (item: BackendCafe, index: number): Cafe => 
   const building = item.addressDtoResponse?.buildingNumber || '';
   const city = item.addressDtoResponse?.streetDtoResponse?.cityDtoResponse?.name || '';
   
-  const fullAddress = `${city}, ${street} ${building}`;
+  const fullAddress = [city, street, building].filter(Boolean).join(', ').replace(', ' + building, ' ' + building);
 
   const { isOpen, closingTime } = getScheduleStatus(item.openingHours);
 
