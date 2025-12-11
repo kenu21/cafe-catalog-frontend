@@ -1,6 +1,7 @@
 import type { BackendCafe, Cafe } from './Cafe';
 
 const timeToMinutes = (timeStr: string): number => {
+  if (!timeStr) return 0;
   const [h, m] = timeStr.split(':').map(Number);
   return h * 60 + m;
 };
@@ -64,9 +65,9 @@ const getScheduleStatus = (openingHours: string) => {
 };
 
 export const mapBackendToFrontend = (item: BackendCafe, index: number): Cafe => {
-  const street = item.addressEntity?.streetEntity?.name || '';
-  const building = item.addressEntity?.buildingNumber || '';
-  const city = item.addressEntity?.streetEntity?.cityEntity?.name || '';
+  const street = item.addressDtoResponse?.streetDtoResponse?.name || '';
+  const building = item.addressDtoResponse?.buildingNumber || '';
+  const city = item.addressDtoResponse?.streetDtoResponse?.cityDtoResponse?.name || '';
   
   const fullAddress = `${city}, ${street} ${building}`;
 
@@ -81,6 +82,7 @@ export const mapBackendToFrontend = (item: BackendCafe, index: number): Cafe => 
     reviews: item.votesCount,
     price: item.priceRating,
     isOpen: isOpen,
-    closingTime: closingTime
+    closingTime: closingTime,
+    tags: []
   };
 };

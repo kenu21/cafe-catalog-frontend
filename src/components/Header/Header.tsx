@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 import styles from './Header.module.scss';
 import { SearchHero } from '../SearchHero/SearchHero'; 
 
@@ -8,8 +8,11 @@ interface Props {
 }
 
 export const Header: React.FC<Props> = ({ onFilterClick }) => {
-
+  const location = useLocation(); 
   const [isScrolled, setIsScrolled] = useState(false);
+
+  // Визначаємо, чи ми на головній
+  const isHomePage = location.pathname === '/';
 
   useEffect(() => {
     const handleScroll = () => {
@@ -20,9 +23,16 @@ export const Header: React.FC<Props> = ({ onFilterClick }) => {
       }
     };
 
+    // 1. Викликаємо одразу при завантаженні або зміні сторінки
+    handleScroll();
+
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+    
+    // 2. Додаємо залежність від шляху, щоб логіка перезапускалася при переходах
+  }, [location.pathname]);
+
+  const showSearch = !isHomePage || isScrolled;
 
   return (
     <header className={styles.header}>
@@ -36,8 +46,8 @@ export const Header: React.FC<Props> = ({ onFilterClick }) => {
           />
         </NavLink>
 
-        <div className={`${styles.stickySearch} ${isScrolled ? styles.visible : ''}`}>
-
+        {/* 3. Використовуємо stickySearch, бо саме для нього ми писали стилі центрування */}
+        <div className={`${styles.stickySearch} ${showSearch ? styles.visible : ''}`}>
            <SearchHero isSmall={true} onFilterClick={onFilterClick} />
         </div>
 

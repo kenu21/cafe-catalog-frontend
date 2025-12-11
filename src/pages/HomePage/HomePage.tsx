@@ -1,19 +1,17 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import styles from './HomePage.module.scss';
 
 import { Header } from '../../components/Header/Header';
 import { Hero } from '../../components/Hero/Hero';
 import { Footer } from '../../components/Footer/Footer';
 import { CafeSection } from '../../components/CafeSection/CafeSection';
-import { FilterModal, type FilterState } from '../../components/Filter/Filter';
+import { FilterModal } from '../../components/Filter/Filter';
 
 import type { Cafe } from '../../utils/Cafe';
 import { getBestOffers, getChosenCafes, getNewCafes } from '../../utils/cafeService'; 
 
 export const HomePage = () => {
-  const navigate = useNavigate();
-
+  
   const [bestOffers, setBestOffers] = useState<Cafe[]>([]);
   const [chosenForYou, setChosenForYou] = useState<Cafe[]>([]);
   const [newAndNoteworthy, setNewAndNoteworthy] = useState<Cafe[]>([]);
@@ -48,31 +46,6 @@ export const HomePage = () => {
   const handleOpenFilters = () => setIsFilterOpen(true);
   const handleCloseFilters = () => setIsFilterOpen(false);
   
-  const handleApplyFilters = (filters: FilterState) => {
-
-    const params = new URLSearchParams();
-    
-    const allTags = [
-      ...filters.popular, 
-      ...filters.coffeeStyle, 
-      ...filters.foodMenu, 
-      ...filters.workStudy
-    ];
-    allTags.forEach(tag => params.append('tags', tag));
-
-    filters.prices.forEach(p => params.append('priceRating', p.toString()));
-    
-    if (filters.rating.length > 0) {
-      params.append('rating', Math.min(...filters.rating).toString());
-    }
-    
-    if (filters.timeFrom && filters.timeFrom !== '9:00 a.m.') {
-      params.append('openingHours', filters.timeFrom);
-    }
-
-    navigate(`/search?${params.toString()}`);
-  };
-
   if (isLoading) {
     return (
       <div className={styles.pageWrapper}>
@@ -99,10 +72,12 @@ export const HomePage = () => {
 
   return (
     <div className={styles.pageWrapper}>
+      {/* Передаємо функцію відкриття, щоб Header міг відкрити модалку */}
       <Header onFilterClick={handleOpenFilters} />
       
       <main className={styles.mainContent}>
         <div className='container'>
+          {/* Hero також може відкривати модалку */}
           <Hero onFilterClick={handleOpenFilters} />
 
           {bestOffers.length > 0 && <CafeSection title='Our best offers' cafes={bestOffers} />}
@@ -117,10 +92,10 @@ export const HomePage = () => {
       
       <Footer />
 
+      {/* FilterModal тепер отримує тільки стан відкриття */}
       <FilterModal 
         isOpen={isFilterOpen} 
         onClose={handleCloseFilters} 
-        onApply={handleApplyFilters}
       />
     </div>
   );

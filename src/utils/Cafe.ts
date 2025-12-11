@@ -5,11 +5,11 @@ export interface BackendCafe {
   openingHours: string;
   rating: number;
   votesCount: number;     
-  addressEntity: {
+  addressDtoResponse: {
     buildingNumber: string;
-    streetEntity: {
+    streetDtoResponse: {
       name: string;
-      cityEntity: {
+      cityDtoResponse: {
         name: string;
       }
     }
@@ -32,4 +32,5 @@ export interface Cafe {
   price: number;
   isOpen: boolean;
   closingTime: string;
+  tags: string[];
 }

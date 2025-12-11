@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import styles from './Filter.module.scss';
 import { TimeSelect } from '../TimeSelect/TimeSelect';
 
@@ -16,10 +17,10 @@ export interface FilterState {
 interface Props {
   isOpen: boolean;
   onClose: () => void;
-  onApply: (filters: FilterState) => void;
 }
 
-export const FilterModal: React.FC<Props> = ({ isOpen, onClose, onApply }) => {
+export const FilterModal: React.FC<Props> = ({ isOpen, onClose }) => {
+  const navigate = useNavigate(); 
   
   const [popular, setPopular] = useState<string[]>([]);
   const [rating, setRating] = useState<number[]>([]);
@@ -57,7 +58,28 @@ export const FilterModal: React.FC<Props> = ({ isOpen, onClose, onApply }) => {
   };
 
   const handleApply = () => {
-    onApply({ popular, rating, prices, timeTo, timeFrom, coffeeStyle, foodMenu, workStudy });
+    const params = new URLSearchParams();
+
+    const allTags = [
+      ...popular, 
+      ...coffeeStyle, 
+      ...foodMenu, 
+      ...workStudy
+    ];
+    allTags.forEach(tag => params.append('tags', tag));
+
+    prices.forEach(p => params.append('priceRating', p.toString()));
+    
+    if (rating.length > 0) {
+      params.append('rating', Math.min(...rating).toString());
+    }
+    
+    if (timeFrom && timeFrom !== '9:00 a.m.') {
+      params.append('openingHours', timeFrom);
+    }
+
+    navigate(`/filter?${params.toString()}`);
+
     onClose();
   };
 
@@ -94,21 +116,21 @@ export const FilterModal: React.FC<Props> = ({ isOpen, onClose, onApply }) => {
                 {rating.map(item => (
                   <button key={item} className={styles.selectedChip} onClick={() => toggleItem(rating, setRating, item)}>
                     <div className={styles.starsRowSmall}>
-                       {[...Array(5)].map((_, i) => (
-                         <img key={i} src={i < item ? "/img/icons/Star_filled.svg" : "/img/icons/Star.svg"} alt="" />
-                       ))}
+                        {[...Array(5)].map((_, i) => (
+                          <img key={i} src={i < item ? "/img/icons/Star_filled.svg" : "/img/icons/Star.svg"} alt="" />
+                        ))}
                     </div>
                     <img src="/img/icons/Small icon close.svg" alt="x" className={styles.removeIcon}/>
                   </button>
                 ))}
                 {prices.map(item => (
                   <button key={item} className={styles.selectedChip} onClick={() => toggleItem(prices, setPrices, item)}>
-                     <div className={styles.dollarRowSmall}>
-                       {[...Array(item)].map((_, i) => (
-                          <img key={i} src="/img/icons/Dollar.svg" alt="$"/>
-                       ))}
-                     </div>
-                     <img src="/img/icons/Small icon close.svg" alt="x" className={styles.removeIcon}/>
+                      <div className={styles.dollarRowSmall}>
+                        {[...Array(item)].map((_, i) => (
+                           <img key={i} src="/img/icons/Dollar.svg" alt="$"/>
+                        ))}
+                      </div>
+                      <img src="/img/icons/Small icon close.svg" alt="x" className={styles.removeIcon}/>
                   </button>
                 ))}
                 {coffeeStyle.map(item => (
@@ -195,7 +217,6 @@ export const FilterModal: React.FC<Props> = ({ isOpen, onClose, onApply }) => {
             </div>
           </div>
 
-          {/* 6. FOOD & MENU */}
           <div className={styles.section}>
             <h3>Food & Menu</h3>
             <div className={styles.tags}>
@@ -207,7 +228,6 @@ export const FilterModal: React.FC<Props> = ({ isOpen, onClose, onApply }) => {
             </div>
           </div>
 
-          {/* 7. WORK & STUDY */}
           <div className={styles.section}>
             <h3>Work & Study Friendly</h3>
             <div className={styles.tags}>
@@ -227,7 +247,6 @@ export const FilterModal: React.FC<Props> = ({ isOpen, onClose, onApply }) => {
 
         </div>
 
-        {/* FOOTER */}
         <div className={styles.footer}>
           <button className={styles.clearBtn} onClick={handleClearAll}>Clear All</button>
           <button className={styles.applyBtn} onClick={handleApply}>Apply</button>
