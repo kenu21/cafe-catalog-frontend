@@ -11,6 +11,7 @@ import type { Cafe } from '../../utils/Cafe';
 import { getBestOffers, getChosenCafes, getNewCafes } from '../../utils/cafeService'; 
 
 export const HomePage = () => {
+  
   const [bestOffers, setBestOffers] = useState<Cafe[]>([]);
   const [chosenForYou, setChosenForYou] = useState<Cafe[]>([]);
   const [newAndNoteworthy, setNewAndNoteworthy] = useState<Cafe[]>([]);
@@ -71,10 +72,12 @@ export const HomePage = () => {
 
   return (
     <div className={styles.pageWrapper}>
+      {/* Передаємо функцію відкриття, щоб Header міг відкрити модалку */}
       <Header onFilterClick={handleOpenFilters} />
       
       <main className={styles.mainContent}>
         <div className='container'>
+          {/* Hero також може відкривати модалку */}
           <Hero onFilterClick={handleOpenFilters} />
 
           {bestOffers.length > 0 && <CafeSection title='Our best offers' cafes={bestOffers} />}
@@ -89,6 +92,7 @@ export const HomePage = () => {
       
       <Footer />
 
+      {/* FilterModal тепер отримує тільки стан відкриття */}
       <FilterModal 
         isOpen={isFilterOpen} 
         onClose={handleCloseFilters} 

@@ -20,7 +20,7 @@ interface Props {
 }
 
 export const FilterModal: React.FC<Props> = ({ isOpen, onClose }) => {
-  const navigate = useNavigate();
+  const navigate = useNavigate(); 
   
   const [popular, setPopular] = useState<string[]>([]);
   const [rating, setRating] = useState<number[]>([]);
@@ -69,17 +69,17 @@ export const FilterModal: React.FC<Props> = ({ isOpen, onClose }) => {
     allTags.forEach(tag => params.append('tags', tag));
 
     prices.forEach(p => params.append('priceRating', p.toString()));
-
+    
     if (rating.length > 0) {
-       params.append('rating', Math.min(...rating).toString());
+      params.append('rating', Math.min(...rating).toString());
     }
-
+    
     if (timeFrom && timeFrom !== '9:00 a.m.') {
       params.append('openingHours', timeFrom);
     }
 
     navigate(`/filter?${params.toString()}`);
-    
+
     onClose();
   };
 

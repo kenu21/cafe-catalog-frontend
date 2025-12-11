@@ -1,15 +1,15 @@
 export interface BackendCafe {
   name: string;
   photoLink: string;
-  priceRating: number;
+  priceRating: number;    
   openingHours: string;
   rating: number;
-  votesCount: number;
-  addressDtoResponse: { 
+  votesCount: number;     
+  addressDtoResponse: {
     buildingNumber: string;
     streetDtoResponse: {
       name: string;
-      cityDtoResponse: { 
+      cityDtoResponse: {
         name: string;
       }
     }
@@ -32,4 +32,5 @@ export interface Cafe {
   price: number;
   isOpen: boolean;
   closingTime: string;
+  tags: string[];
 }

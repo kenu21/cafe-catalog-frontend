@@ -5,7 +5,7 @@ import type { FilterState } from '../components/Filter/Filter';
 const normalizeBaseUrl = (baseUrl?: string): string =>
   baseUrl ? baseUrl.replace(/\/$/, '') : '';
 
-const API_BASE_URL = normalizeBaseUrl(import.meta.env.REACT_APP_API_URL) || '/api';
+const API_BASE_URL = normalizeBaseUrl(import.meta.env.REACT_APP_API_URL);
 const CAFES_ENDPOINT = `${API_BASE_URL}/cafes`;
 
 const getCafesRequest = async (params: Record<string, string | number>): Promise<Cafe[]> => {
@@ -30,7 +30,7 @@ const getCafesRequest = async (params: Record<string, string | number>): Promise
 };
 
 export const getAllCafes = async (): Promise<Cafe[]> => {
-  return await getCafesRequest({ page: 0, size: 20 });
+  return await getCafesRequest({ page: 0, size: 10 });
 };
 
 export const getBestOffers = async (): Promise<Cafe[]> => {
@@ -60,19 +60,18 @@ export const getNewCafes = async (): Promise<Cafe[]> => {
 export const searchCafes = async (query: string): Promise<Cafe[]> => {
   if (!query) return [];
 
-  const url = `${CAFES_ENDPOINT}/search?query=${encodeURIComponent(query)}`;
-  
-  const response = await fetch(url);
+  try {
+    const allCafes = await getCafesRequest({ page: 0, size: 10 });
+    const lowerQuery = query.toLowerCase();
 
-  if (!response.ok) {
-    console.error(`Search error: ${response.status}`);
+    return allCafes.filter(cafe => 
+      cafe.name.toLowerCase().includes(lowerQuery) || 
+      cafe.address.toLowerCase().includes(lowerQuery)
+    );
+  } catch (error) {
+    console.error("Search error:", error);
     return [];
   }
-  
-  const data: BackendResponse = await response.json();
-  const list = Array.isArray(data) ? data : data.content;
-  
-  return list.map(mapBackendToFrontend);
 };
 
 export const filterCafes = async (filters: FilterState): Promise<Cafe[]> => {
