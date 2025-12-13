@@ -9,9 +9,7 @@ interface Props {
 
 export const Header: React.FC<Props> = ({ onFilterClick }) => {
   const location = useLocation(); 
-  const [isScrolled, setIsScrolled] = useState(false);
-
-  // Визначаємо, чи ми на головній
+  const [isScrolled, setIsScrolled] = useState(false);  
   const isHomePage = location.pathname === '/';
 
   useEffect(() => {
@@ -23,13 +21,11 @@ export const Header: React.FC<Props> = ({ onFilterClick }) => {
       }
     };
 
-    // 1. Викликаємо одразу при завантаженні або зміні сторінки
     handleScroll();
 
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
     
-    // 2. Додаємо залежність від шляху, щоб логіка перезапускалася при переходах
   }, [location.pathname]);
 
   const showSearch = !isHomePage || isScrolled;
@@ -46,9 +42,12 @@ export const Header: React.FC<Props> = ({ onFilterClick }) => {
           />
         </NavLink>
 
-        {/* 3. Використовуємо stickySearch, бо саме для нього ми писали стилі центрування */}
         <div className={`${styles.stickySearch} ${showSearch ? styles.visible : ''}`}>
-           <SearchHero isSmall={true} onFilterClick={onFilterClick} />
+           {/* 👇 ВИПРАВЛЕНО: Прибрали filterCount={filterCount} */}
+           <SearchHero 
+             isSmall={true} 
+             onFilterClick={onFilterClick} 
+           />
         </div>
 
         <NavLink to="/Favourites" className={styles.navLinkButton}>

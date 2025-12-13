@@ -1,17 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './Filter.module.scss';
 import { TimeSelect } from '../TimeSelect/TimeSelect';
+import { getAllTags } from '../../utils/cafeService';
 
 export interface FilterState {
-  popular: string[];
+  tags: string[];
   rating: number[];
   prices: number[];
   timeTo: string;
   timeFrom: string;
-  coffeeStyle: string[];
-  foodMenu: string[];
-  workStudy: string[];
 }
 
 interface Props {
@@ -19,24 +17,65 @@ interface Props {
   onClose: () => void;
 }
 
-export const FilterModal: React.FC<Props> = ({ isOpen, onClose }) => {
-  const navigate = useNavigate(); 
+// 👇 ВИПРАВЛЕНО: Розділили змінні, щоб minutes була const
+const parseTime = (timeStr: string): number => {
+  if (!timeStr) return 0;
   
-  const [popular, setPopular] = useState<string[]>([]);
+  const [time, modifier] = timeStr.split(' ');
+  const [rawHours, minutes] = time.split(':').map(Number);
+  
+  let hours = rawHours;
+
+  if (hours === 12) hours = 0;
+  if (modifier === 'p.m.') hours += 12;
+
+  return hours * 60 + minutes;
+};
+
+export const FilterModal: React.FC<Props> = ({ isOpen, onClose }) => {
+  const navigate = useNavigate();
+  
+  const [availableTags, setAvailableTags] = useState<string[]>([]);
+  const [isLoadingTags, setIsLoadingTags] = useState(false);
+
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [rating, setRating] = useState<number[]>([]);
   const [prices, setPrices] = useState<number[]>([]);
-  const [timeTo, setTimeTo] = useState('9:00 a.m.');
+  const [timeTo, setTimeTo] = useState('9:00 p.m.');
   const [timeFrom, setTimeFrom] = useState('9:00 a.m.');
-  const [coffeeStyle, setCoffeeStyle] = useState<string[]>([]);
-  const [foodMenu, setFoodMenu] = useState<string[]>([]);
-  const [workStudy, setWorkStudy] = useState<string[]>([]);
 
-  const [isWorkStudyExpanded, setIsWorkStudyExpanded] = useState(false);
+  const [timeError, setTimeError] = useState<string | null>(null);
+  const [isTagsExpanded, setIsTagsExpanded] = useState(false);
 
-  const workStudyOptions = [
-    'Wi-Fi', 'Coworking', 'Long stay allowed', 'Quiet zone', 'Power outlets', 'Large tables'
-  ];
-  const visibleWorkStudy = isWorkStudyExpanded ? workStudyOptions : workStudyOptions.slice(0, 3);
+  useEffect(() => {
+    if (isOpen) {
+      const loadTags = async () => {
+        setIsLoadingTags(true);
+        try {
+          const tags = await getAllTags();
+          setAvailableTags(tags);
+        } catch (error) {
+          console.error("Failed to load tags", error);
+        } finally {
+          setIsLoadingTags(false);
+        }
+      };
+      loadTags();
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
+    const minutesFrom = parseTime(timeFrom);
+    const minutesTo = parseTime(timeTo);
+
+    if (minutesFrom >= minutesTo) {
+      setTimeError('Time "From" must be earlier than "To"');
+    } else {
+      setTimeError(null);
+    }
+  }, [timeFrom, timeTo]);
+
+  const visibleTags = isTagsExpanded ? availableTags : availableTags.slice(0, 4);
 
   const toggleItem = <T,>(list: T[], setList: React.Dispatch<React.SetStateAction<T[]>>, item: T) => {
     if (list.includes(item)) {
@@ -47,43 +86,39 @@ export const FilterModal: React.FC<Props> = ({ isOpen, onClose }) => {
   };
 
   const handleClearAll = () => {
-    setPopular([]);
+    setSelectedTags([]);
     setRating([]);
     setPrices([]);
-    setCoffeeStyle([]);
-    setFoodMenu([]);
-    setWorkStudy([]);
-    setTimeTo('9:00 a.m.');
+    setTimeTo('9:00 p.m.');
     setTimeFrom('9:00 a.m.');
+    setTimeError(null);
   };
 
   const handleApply = () => {
+    if (timeError) return;
+
     const params = new URLSearchParams();
-
-    const allTags = [
-      ...popular, 
-      ...coffeeStyle, 
-      ...foodMenu, 
-      ...workStudy
-    ];
-    allTags.forEach(tag => params.append('tags', tag));
-
+    selectedTags.forEach(tag => params.append('tags', tag));
     prices.forEach(p => params.append('priceRating', p.toString()));
-    
-    if (rating.length > 0) {
-      params.append('rating', Math.min(...rating).toString());
-    }
+    rating.forEach(r => params.append('rating', r.toString()));
     
     if (timeFrom && timeFrom !== '9:00 a.m.') {
       params.append('openingHours', timeFrom);
     }
 
     navigate(`/filter?${params.toString()}`);
-
     onClose();
   };
 
-  const totalSelected = popular.length + rating.length + prices.length + coffeeStyle.length + foodMenu.length + workStudy.length;
+  const renderStars = (count: number) => (
+    <div className={styles.starsRowSmall}>
+      {[...Array(5)].map((_, i) => (
+        <img key={i} src={i < count ? "/img/icons/Star_filled.svg" : "/img/icons/Star.svg"} alt="" />
+      ))}
+    </div>
+  );
+
+  const totalSelected = selectedTags.length + rating.length + prices.length;
 
   if (!isOpen) return null;
 
@@ -99,27 +134,21 @@ export const FilterModal: React.FC<Props> = ({ isOpen, onClose }) => {
         </div>
 
         <div className={styles.content}>
-          
           {totalSelected > 0 && (
             <div className={styles.section}>
               <div className={styles.selectedHeader}>
-                <h3>Selected filters <span>({totalSelected})</span></h3>
+                <h3>Selected filters <span style={{ color: '#999', fontWeight: 400 }}>({totalSelected})</span></h3>
                 <button className={styles.clearTextBtn} onClick={handleClearAll}>Clear all</button>
               </div>
-              
               <div className={styles.selectedTags}>
-                {popular.map(item => (
-                  <button key={item} className={styles.selectedChip} onClick={() => toggleItem(popular, setPopular, item)}>
+                 {selectedTags.map(item => (
+                  <button key={item} className={styles.selectedChip} onClick={() => toggleItem(selectedTags, setSelectedTags, item)}>
                     {item} <img src="/img/icons/Small icon close.svg" alt="x" className={styles.removeIcon}/>
                   </button>
                 ))}
                 {rating.map(item => (
                   <button key={item} className={styles.selectedChip} onClick={() => toggleItem(rating, setRating, item)}>
-                    <div className={styles.starsRowSmall}>
-                        {[...Array(5)].map((_, i) => (
-                          <img key={i} src={i < item ? "/img/icons/Star_filled.svg" : "/img/icons/Star.svg"} alt="" />
-                        ))}
-                    </div>
+                    {renderStars(item)}
                     <img src="/img/icons/Small icon close.svg" alt="x" className={styles.removeIcon}/>
                   </button>
                 ))}
@@ -133,38 +162,50 @@ export const FilterModal: React.FC<Props> = ({ isOpen, onClose }) => {
                       <img src="/img/icons/Small icon close.svg" alt="x" className={styles.removeIcon}/>
                   </button>
                 ))}
-                {coffeeStyle.map(item => (
-                  <button key={item} className={styles.selectedChip} onClick={() => toggleItem(coffeeStyle, setCoffeeStyle, item)}>
-                    {item} <img src="/img/icons/Small icon close.svg" alt="x" className={styles.removeIcon}/>
-                  </button>
-                ))}
-                {foodMenu.map(item => (
-                  <button key={item} className={styles.selectedChip} onClick={() => toggleItem(foodMenu, setFoodMenu, item)}>
-                    {item} <img src="/img/icons/Small icon close.svg" alt="x" className={styles.removeIcon}/>
-                  </button>
-                ))}
-                {workStudy.map(item => (
-                  <button key={item} className={styles.selectedChip} onClick={() => toggleItem(workStudy, setWorkStudy, item)}>
-                    {item} <img src="/img/icons/Small icon close.svg" alt="x" className={styles.removeIcon}/>
-                  </button>
-                ))}
               </div>
             </div>
           )}
 
           <div className={styles.section}>
-            <h3>Popular</h3>
-            <div className={styles.tags}>
-              {['Pet-Friendly', '5 stars', 'Wi-Fi', 'Vegan'].map(tag => (
-                <button 
-                  key={tag}
-                  className={`${styles.tag} ${popular.includes(tag) ? styles.active : ''}`}
-                  onClick={() => toggleItem(popular, setPopular, tag)}
-                >
-                  {tag}
-                </button>
-              ))}
+            <h3>Tags</h3>
+            {isLoadingTags ? (
+              <p>Loading tags...</p>
+            ) : availableTags.length > 0 ? (
+              <>
+                <div className={styles.tags}>
+                  {visibleTags.map(tag => (
+                    <button 
+                      key={tag}
+                      className={`${styles.tag} ${selectedTags.includes(tag) ? styles.active : ''}`}
+                      onClick={() => toggleItem(selectedTags, setSelectedTags, tag)}
+                    >
+                      {tag}
+                    </button>
+                  ))}
+                </div>
+                {availableTags.length > 4 && (
+                  <button className={styles.showMore} onClick={() => setIsTagsExpanded(!isTagsExpanded)}>
+                    {isTagsExpanded ? 'Show less' : 'Show more'}
+                    <img src={isTagsExpanded ? "/img/icons/Up.svg" : "/img/icons/Bottom.svg"} alt="" className={styles.chevronIcon} />
+                  </button>
+                )}
+              </>
+            ) : (
+              <p className={styles.noTags}>No tags available</p>
+            )}
+          </div>
+
+          <div className={styles.section}>
+            <h3>Opening hours</h3>
+            <div className={styles.timeRow}>
+               <TimeSelect label="From" value={timeFrom} onChange={setTimeFrom} />
+               <TimeSelect label="To" value={timeTo} onChange={setTimeTo} />
             </div>
+            {timeError && (
+              <div className={styles.errorMessage}>
+                {timeError}
+              </div>
+            )}
           </div>
 
           <div className={styles.section}>
@@ -198,58 +239,18 @@ export const FilterModal: React.FC<Props> = ({ isOpen, onClose }) => {
             </div>
           </div>
 
-          <div className={styles.section}>
-            <h3>Opening hours</h3>
-            <div className={styles.timeRow}>
-               <TimeSelect label="From" value={timeFrom} onChange={setTimeFrom} />
-               <TimeSelect label="To" value={timeTo} onChange={setTimeTo} />
-            </div>
-          </div>
-
-          <div className={styles.section}>
-            <h3>Coffee Quality & Style</h3>
-            <div className={styles.tags}>
-              {['Pet-Friendly', 'Alternative milk', 'Caffeine-free'].map(tag => (
-                <button key={tag} className={`${styles.tag} ${coffeeStyle.includes(tag) ? styles.active : ''}`} onClick={() => toggleItem(coffeeStyle, setCoffeeStyle, tag)}>
-                  {tag}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div className={styles.section}>
-            <h3>Food & Menu</h3>
-            <div className={styles.tags}>
-              {['Pet-Friendly', 'Gluten-free', 'Lactose-free'].map(tag => (
-                <button key={tag} className={`${styles.tag} ${foodMenu.includes(tag) ? styles.active : ''}`} onClick={() => toggleItem(foodMenu, setFoodMenu, tag)}>
-                  {tag}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div className={styles.section}>
-            <h3>Work & Study Friendly</h3>
-            <div className={styles.tags}>
-              {visibleWorkStudy.map(tag => (
-                <button key={tag} className={`${styles.tag} ${workStudy.includes(tag) ? styles.active : ''}`} onClick={() => toggleItem(workStudy, setWorkStudy, tag)}>
-                  {tag}
-                </button>
-              ))}
-            </div>
-            {workStudyOptions.length > 3 && (
-              <button className={styles.showMore} onClick={() => setIsWorkStudyExpanded(!isWorkStudyExpanded)}>
-                {isWorkStudyExpanded ? 'Show less' : 'Show more'}
-                <img src={isWorkStudyExpanded ? "/img/icons/Up.svg" : "/img/icons/Bottom.svg"} alt="" className={styles.chevronIcon} />
-              </button>
-            )}
-          </div>
-
         </div>
 
         <div className={styles.footer}>
           <button className={styles.clearBtn} onClick={handleClearAll}>Clear All</button>
-          <button className={styles.applyBtn} onClick={handleApply}>Apply</button>
+          <button 
+            className={styles.applyBtn} 
+            onClick={handleApply}
+            disabled={!!timeError}
+            style={{ opacity: timeError ? 0.5 : 1, cursor: timeError ? 'not-allowed' : 'pointer' }}
+          >
+            Apply
+          </button>
         </div>
 
       </div>
