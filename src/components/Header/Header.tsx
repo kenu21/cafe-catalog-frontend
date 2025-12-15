@@ -43,7 +43,6 @@ export const Header: React.FC<Props> = ({ onFilterClick }) => {
         </NavLink>
 
         <div className={`${styles.stickySearch} ${showSearch ? styles.visible : ''}`}>
-           {/* 👇 ВИПРАВЛЕНО: Прибрали filterCount={filterCount} */}
            <SearchHero 
              isSmall={true} 
              onFilterClick={onFilterClick} 
