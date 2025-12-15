@@ -81,7 +81,7 @@ export const CatalogPage = () => {
       ? query.charAt(0).toUpperCase() + query.slice(1) 
       : 'Ukraine';
 
-    if (query) return `Results for "${query}"`;
+    if (query) return `Coffee shops found in ${query}`;
     return `Coffee shops found in ${locationName}`;
   };
 

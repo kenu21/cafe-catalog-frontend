@@ -18,7 +18,6 @@ const POPULAR_CITIES = [
 interface Props {
   isSmall?: boolean;
   onFilterClick?: () => void;
-  // filterCount removed from props
 }
 
 export const SearchHero: React.FC<Props> = ({ isSmall = false, onFilterClick }) => {
@@ -31,7 +30,6 @@ export const SearchHero: React.FC<Props> = ({ isSmall = false, onFilterClick }) 
   const navigate = useNavigate();
   const wrapperRef = useRef<HTMLDivElement>(null);
 
-  // 👇 2. Get filter count directly from the hook
   const filterCount = useFilterCount();
 
   useEffect(() => {
@@ -182,7 +180,6 @@ export const SearchHero: React.FC<Props> = ({ isSmall = false, onFilterClick }) 
 
       <button className={styles.filterBtn} onClick={onFilterClick}>
         <img src="/img/icons/Filter.svg" alt="filter" className={styles.filterIcon} />
-        {/* 👇 Using the hook value */}
         {filterCount > 0 && (
           <span className={styles.filterBadge}>{filterCount}</span>
         )}

@@ -17,7 +17,6 @@ interface Props {
   onClose: () => void;
 }
 
-// 👇 ВИПРАВЛЕНО: Розділили змінні, щоб minutes була const
 const parseTime = (timeStr: string): number => {
   if (!timeStr) return 0;
   
