@@ -450,3 +450,19 @@
   cursor: pointer;
   transition: background-color 0.2s;
 }
+
+.errorMessage {
+  margin-top: 12px;
+  padding: 10px 12px;
+  background-color: #FFF4F4;
+  border: 1px solid #FFCDCD;
+  border-radius: 8px;
+  
+  color: #D32F2F;
+  font-family: 'Noto Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  
+  display: flex;
+  align-items: center;
+}

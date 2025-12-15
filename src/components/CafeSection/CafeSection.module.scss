@@ -48,6 +48,15 @@
   align-items: center;
   justify-content: center;
 
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+
+  &:disabled {
+    opacity: 0;           
+    visibility: hidden;
+    cursor: default;
+    pointer-events: none
+  }
+
   &.prev {
     left: -24px;
   }

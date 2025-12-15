@@ -1,13 +1,14 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import styles from './CatalogPage.module.scss';
 
 import { Header } from '../../components/Header/Header';
 import { Footer } from '../../components/Footer/Footer';
 import { FilterModal } from '../../components/Filter/Filter';
+import type { FilterState } from '../../components/Filter/Filter';
 import { CafeCard } from '../../components/CafeCard/CafeCard';
 
-import { getAllCafes } from '../../utils/cafeService';
+import { getAllCafes, searchCafes, filterCafes } from '../../utils/cafeService';
 import type { Cafe } from '../../utils/Cafe';
 
 const ITEMS_PER_PAGE = 8;
@@ -16,7 +17,7 @@ export const CatalogPage = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
-  const [allCafes, setAllCafes] = useState<Cafe[]>([]);
+  const [cafes, setCafes] = useState<Cafe[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
@@ -25,59 +26,51 @@ export const CatalogPage = () => {
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        const data = await getAllCafes();
-        setAllCafes(data);
+        const query = searchParams.get('query');
+        
+        const hasFilters = 
+          searchParams.has('tags') || 
+          searchParams.has('priceRating') || 
+          searchParams.has('rating') || 
+          searchParams.has('openingHours');
+
+        let data: Cafe[] = [];
+
+        if (query) {
+          data = await searchCafes(query);
+        } else if (hasFilters) {
+          const filterData: FilterState = {
+            tags: searchParams.getAll('tags'),
+            prices: searchParams.getAll('priceRating').map(Number),
+            rating: searchParams.getAll('rating').map(Number),
+            timeFrom: searchParams.get('openingHours') || '',
+            timeTo: ''
+          };
+          data = await filterCafes(filterData);
+        } else {
+          data = await getAllCafes();
+        }
+
+        setCafes(data);
       } catch (error) {
         console.error("Error loading cafes:", error);
       } finally {
         setIsLoading(false);
       }
     };
+
     fetchData();
-  }, []);
-
-  const filteredCafes = useMemo(() => {
-    let result = [...allCafes];
-
-    const query = searchParams.get('query')?.toLowerCase() || '';
-    const tags = searchParams.getAll('tags');
-    const rating = searchParams.get('rating');
-    const prices = searchParams.getAll('priceRating');
-
-    if (query) {
-      result = result.filter(cafe => 
-        cafe.name.toLowerCase().includes(query) || 
-        cafe.address.toLowerCase().includes(query)
-      );
-    }
-    
-    if (tags.length > 0) {
-       result = result.filter(cafe => {
-         const cafeTags = cafe.tags || []; 
-         return tags.every(tag => cafeTags.includes(tag));
-       });
-    }
-
-    if (rating) {
-      result = result.filter(cafe => cafe.rating >= Number(rating));
-    }
-
-    if (prices.length > 0) {
-      result = result.filter(cafe => prices.includes(cafe.price.toString()));
-    }
-
-    return result;
-  }, [allCafes, searchParams]); 
-
-  const totalPages = Math.ceil(filteredCafes.length / ITEMS_PER_PAGE);
-  const currentData = filteredCafes.slice(
-    (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
-  );
+  }, [searchParams]);
 
   useEffect(() => {
     setCurrentPage(1);
   }, [searchParams]);
+
+  const totalPages = Math.ceil(cafes.length / ITEMS_PER_PAGE);
+  const currentData = cafes.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
 
   const handleOpenFilters = () => setIsFilterOpen(true);
   const handleCloseFilters = () => setIsFilterOpen(false);
@@ -88,6 +81,7 @@ export const CatalogPage = () => {
       ? query.charAt(0).toUpperCase() + query.slice(1) 
       : 'Ukraine';
 
+    if (query) return `Coffee shops found in ${query}`;
     return `Coffee shops found in ${locationName}`;
   };
 

@@ -4,6 +4,7 @@ import styles from './SearchHero.module.scss';
 
 import { searchCafes, getAllCafes } from '../../utils/cafeService'; 
 import type { Cafe } from '../../utils/Cafe';
+import { useFilterCount } from '../../utils/useFilterCount';
 
 const POPULAR_CITIES = [
   { name: 'Kyiv', count: 2345, img: '/img/cities/Kyiv.svg' },
@@ -17,10 +18,9 @@ const POPULAR_CITIES = [
 interface Props {
   isSmall?: boolean;
   onFilterClick?: () => void;
-  filterCount?: number;
 }
 
-export const SearchHero: React.FC<Props> = ({ isSmall = false, onFilterClick, filterCount = 0 }) => {
+export const SearchHero: React.FC<Props> = ({ isSmall = false, onFilterClick }) => {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<Cafe[]>([]);
   const [recommendations, setRecommendations] = useState<Cafe[]>([]);
@@ -29,6 +29,8 @@ export const SearchHero: React.FC<Props> = ({ isSmall = false, onFilterClick, fi
 
   const navigate = useNavigate();
   const wrapperRef = useRef<HTMLDivElement>(null);
+
+  const filterCount = useFilterCount();
 
   useEffect(() => {
     getAllCafes()
@@ -88,9 +90,7 @@ export const SearchHero: React.FC<Props> = ({ isSmall = false, onFilterClick, fi
 
   const handleSelectCity = (cityName: string) => {
     setQuery(cityName); 
-    
     navigate(`/search?query=${encodeURIComponent(cityName)}`);
-    
     setShowDropdown(true); 
   };
 

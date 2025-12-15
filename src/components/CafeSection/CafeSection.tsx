@@ -1,6 +1,6 @@
-import React, { useRef } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import styles from "./CafeSection.module.scss";
-import  { CafeCard } from "../CafeCard/CafeCard.tsx";
+import { CafeCard } from "../CafeCard/CafeCard";
 import type { Cafe } from "../../utils/Cafe";
 
 interface Props {
@@ -10,6 +10,32 @@ interface Props {
 
 export const CafeSection: React.FC<Props> = ({ title, cafes }) => {
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
+
+  const checkScroll = () => {
+    if (scrollRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
+      
+      setCanScrollLeft(scrollLeft > 0);
+      setCanScrollRight(Math.ceil(scrollLeft + clientWidth) < scrollWidth);
+    }
+  };
+
+  useEffect(() => {
+    const element = scrollRef.current;
+    if (element) {
+      checkScroll();
+      element.addEventListener('scroll', checkScroll);
+      window.addEventListener('resize', checkScroll);
+
+      return () => {
+        element.removeEventListener('scroll', checkScroll);
+        window.removeEventListener('resize', checkScroll);
+      };
+    }
+  }, [cafes]);
 
   const handleScroll = (direction: 'left' | 'right') => {
     if (scrollRef.current) {
@@ -30,6 +56,7 @@ export const CafeSection: React.FC<Props> = ({ title, cafes }) => {
           className={`${styles.navBtn} ${styles.prev}`} 
           onClick={() => handleScroll('left')}
           aria-label="Previous"
+          disabled={!canScrollLeft}
         >
           <img src="img/icons/Arrow-left.svg" alt="" className={styles.arrowIcon} />
         </button>
@@ -44,6 +71,7 @@ export const CafeSection: React.FC<Props> = ({ title, cafes }) => {
           className={`${styles.navBtn} ${styles.next}`} 
           onClick={() => handleScroll('right')}
           aria-label="Next"
+          disabled={!canScrollRight}
         >
           <img src="img/icons/Arrow-right.svg" alt="" className={styles.arrowIcon} />
         </button>
