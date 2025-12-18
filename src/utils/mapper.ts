@@ -73,16 +73,24 @@ export const mapBackendToFrontend = (item: BackendCafe, index: number): Cafe => 
 
   const { isOpen, closingTime } = getScheduleStatus(item.openingHours);
 
+  // Обробка тегів: перевіряємо, чи це рядок, чи об'єкт {name: "..."}
+  const tags = item.tags && Array.isArray(item.tags)
+    ? item.tags.map((t) => (typeof t === 'string' ? t : t.name))
+    : [];
+
   return {
-    id: index,
+    id: item.id ?? index,
     name: item.name,
     image: item.photoLink,
+    images: [item.photoLink, item.photoLink, item.photoLink],
     address: fullAddress,
     rating: item.rating,
     reviews: item.votesCount,
     price: item.priceRating,
     isOpen: isOpen,
     closingTime: closingTime,
-    tags: []
+    openingHours: item.openingHours,
+    tags: tags,
+    description: item.description || '' 
   };
 };

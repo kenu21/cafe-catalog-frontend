@@ -1,4 +1,4 @@
-import type { BackendResponse, Cafe } from '../utils/Cafe';
+import type { BackendResponse, Cafe, BackendCafe } from '../utils/Cafe';
 import { mapBackendToFrontend } from '../utils/mapper';
 import type { FilterState } from '../components/Filter/Filter';
 
@@ -91,15 +91,11 @@ export const getAllTags = async (): Promise<string[]> => {
 };
 
 export const getBestOffers = async (): Promise<Cafe[]> => {
-  return await getCafesRequest(CAFES_ENDPOINT, { sort: 'rating,desc', page: 0, size: 5 });
-};
-
-export const getChosenCafes = async (): Promise<Cafe[]> => {
-  return await getCafesRequest(CAFES_ENDPOINT, { sort: 'votesCount,desc', page: 0, size: 5 });
+  return await getCafesRequest(CAFES_ENDPOINT, { sort: 'rating,desc', page: 0, size: 6 });
 };
 
 export const getNewCafes = async (): Promise<Cafe[]> => {
-  return await getCafesRequest(CAFES_ENDPOINT, { sort: 'id,desc', page: 0, size: 5 });
+  return await getCafesRequest(CAFES_ENDPOINT, { sort: 'id,desc', page: 0, size: 6 });
 };
 
 export const searchCafes = async (query: string): Promise<Cafe[]> => {
@@ -148,4 +144,18 @@ export const filterCafes = async (filters: FilterState): Promise<Cafe[]> => {
     console.error("Filter request failed:", error);
     return [];
   }
+};
+
+// 👇 Нова функція для отримання одного кафе (потрібна для CafePage)
+export const getCafeById = async (id: string | number): Promise<Cafe> => {
+  const url = `${CAFES_ENDPOINT}/${id}`;
+  const response = await fetch(url);
+  
+  if (!response.ok) {
+    throw new Error(`Error fetching cafe with id ${id}: ${response.status}`);
+  }
+  
+  const data: BackendCafe = await response.json();
+  // Використовуємо 0 як індекс, бо це один елемент
+  return mapBackendToFrontend(data, 0);
 };
