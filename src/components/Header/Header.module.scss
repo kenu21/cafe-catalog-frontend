@@ -26,8 +26,21 @@
   position: relative;
 }
 
-.navLinkButton {
+.logoLink {
   text-decoration: none;
+  outline: none;
+  display: inline-block;
+  border-radius: 4px;
+
+  &:focus-visible {
+    outline: 2px solid $grey-20;
+    outline-offset: 2px;
+  }
+}
+
+.logo {
+  display: block;
+  height: auto;
 }
 
 .header__button {
@@ -40,6 +53,7 @@
   border-radius: 50px;
   background-color: $grey-90;
   cursor: pointer;
+  text-decoration: none;
   
   font-size: 16px;
   font-family: 'Noto Sans', sans-serif;
@@ -47,10 +61,15 @@
   font-weight: 400;
   color: $grey-20;
   
-  transition: background-color 0.2s;
+  transition: background-color 0.2s, outline 0.2s;
 
   &:hover {
     background-color: $grey-100;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $grey-20;
+    outline-offset: 2px;
   }
 
   &_favourites {
@@ -106,6 +125,11 @@
   color: $grey-20;
   outline: none;
 
+  &:focus-visible {
+    outline: 2px solid $grey-20;
+    outline-offset: 2px;
+  }
+
   &::placeholder {
     color: $grey-60;
   }
@@ -131,9 +155,16 @@
   font-weight: 600;
   cursor: pointer;
   font-family: 'Noto Sans', sans-serif;
+  outline: none;
   
   &:hover {
     opacity: 0.9;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $grey-20;
+    outline-offset: 2px;
+    outline-color: $grey-60;
   }
 }
 
@@ -147,9 +178,15 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  outline: none;
   
   &:hover {
     background-color: $grey-80;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $grey-20;
+    outline-offset: 2px;
   }
   
   img {

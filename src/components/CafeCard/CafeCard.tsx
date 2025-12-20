@@ -11,8 +11,6 @@ interface Props {
 export const CafeCard: React.FC<Props> = ({ cafe }) => {
   const navigate = useNavigate(); 
 
-  const [rating, setRating] = useState(Math.round(cafe.rating));
-  const [hover, setHover] = useState(0);
   const [isFavoriteState, setIsFavoriteState] = useState(false);
 
   useEffect(() => {
@@ -23,11 +21,14 @@ export const CafeCard: React.FC<Props> = ({ cafe }) => {
     navigate(`/cafe/${cafe.id}`);
   };
 
-  const handleRate = (value: number) => {
-    setRating(value);
+  const handleCardKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      navigate(`/cafe/${cafe.id}`);
+    }
   };
 
-  const toggleFavorite = (e: React.MouseEvent) => {
+  const toggleFavorite = (e: React.MouseEvent | React.KeyboardEvent) => {
     e.preventDefault();
     e.stopPropagation();
     const newFavoriteState = toggleFavoriteService(cafe);
@@ -53,7 +54,14 @@ export const CafeCard: React.FC<Props> = ({ cafe }) => {
   };
 
   return (
-    <article className={styles.card} onClick={handleCardClick}>
+    <article 
+      className={styles.card} 
+      onClick={handleCardClick}
+      onKeyDown={handleCardKeyDown}
+      tabIndex={0}
+      role="button"
+      aria-label={`View details for ${cafe.name}`}
+    >
       <div className={styles.imageWrapper}>
         <img 
           src={cafe.image}
@@ -64,6 +72,12 @@ export const CafeCard: React.FC<Props> = ({ cafe }) => {
           className={styles.favButton} 
           type="button" 
           onClick={toggleFavorite}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              toggleFavorite(e);
+            }
+          }}
+          aria-label={isFavoriteState ? `Remove ${cafe.name} from favorites` : `Add ${cafe.name} to favorites`}
         >
           <img 
             src={isFavoriteState ? "/img/icons/Heart_Fill.svg" : "/img/icons/Heart.svg"} 
@@ -86,29 +100,24 @@ export const CafeCard: React.FC<Props> = ({ cafe }) => {
         <div className={styles.row}>
           <div className={styles.stars}>
             {[1, 2, 3, 4, 5].map((index) => {
-              const isActive = index <= (hover || rating);
+              const rating = Math.round(cafe.rating);
+              const isActive = index <= rating;
               return (
-                <button
+                <span
                   key={index}
-                  type="button"
-                  className={styles.starButton}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleRate(index);
-                  }}
-                  onMouseEnter={() => setHover(index)}
-                  onMouseLeave={() => setHover(0)}
+                  className={styles.star}
+                  aria-hidden="true"
                 >
                   <img 
                     src={isActive ? "/img/icons/Star_filled.svg" : "/img/icons/Star.svg"}
-                    alt={`${index} star`} 
+                    alt="" 
                     className={styles.starIcon}
                   />
-                </button>
+                </span>
               );
             })}
           </div>
-          <span className={styles.ratingValue}>{rating}</span>
+          <span className={styles.ratingValue}>{Math.round(cafe.rating)}</span>
           <span className={styles.reviewsCount}>({cafe.reviews} reviews)</span>
         </div>
 

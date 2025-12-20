@@ -52,6 +52,8 @@
   border: none;
   cursor: pointer;
   padding: 8px;
+  outline: none;
+  border-radius: 4px;
   
   img {
     width: 24px;
@@ -62,6 +64,11 @@
   
   &:hover img {
     opacity: 1;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $grey-40;
+    outline-offset: 2px;
   }
 }
 
@@ -131,7 +138,16 @@
   font-size: 16px;
   font-family: 'Noto Sans', sans-serif;
   cursor: pointer;
+  outline: none;
+  border-radius: 4px;
+  padding: 4px 8px;
+  
   &:hover { text-decoration: underline; }
+
+  &:focus-visible {
+    outline: 2px solid $grey-40;
+    outline-offset: 2px;
+  }
 }
 
 .selectedTags {
@@ -160,9 +176,15 @@
 
   cursor: pointer;
   transition: all 0.2s;
+  outline: none;
 
   &:hover {
     background-color: #FFF3E0;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $primary-color;
+    outline-offset: 2px;
   }
 }
 
@@ -214,9 +236,15 @@
   
   cursor: pointer;
   transition: all 0.2s;
+  outline: none;
 
   &:hover {
     border-color: $primary-color;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $primary-color;
+    outline-offset: 2px;
   }
 
   &.active {
@@ -243,6 +271,7 @@
   padding: 7px 48px;
   cursor: pointer;
   transition: all 0.2s;
+  outline: none;
   
   input { 
     display: none; 
@@ -250,6 +279,12 @@
 
   &:hover {
     border-color: $primary-color;
+  }
+
+  &:focus-within {
+    border-color: $primary-color;
+    outline: 2px solid $primary-color;
+    outline-offset: 2px;
   }
 
   &.active {
@@ -288,6 +323,7 @@
   justify-content: center;
   align-items: center;
   transition: background 0.2s;
+  outline: none;
   
   &:last-child { 
     border-right: none; 
@@ -295,6 +331,12 @@
   
   &:hover { 
     background-color: #f0f0f0;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $primary-color;
+    outline-offset: -2px;
+    z-index: 1;
   }
   
   &.active {
@@ -344,6 +386,13 @@
   border-radius: 10px;
   cursor: pointer;
   transition: border-color 0.2s;
+  outline: none;
+  text-align: left;
+
+  &:focus-visible {
+    outline: 2px solid $grey-40;
+    outline-offset: 2px;
+  }
 
   .clockIcon {
     width: 24px;
@@ -398,6 +447,13 @@
   color: $grey-20;
   cursor: pointer;
   border-bottom: 1px solid #f0f0f0;
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border-left: none;
+  border-right: none;
+  border-top: none;
+  outline: none;
 
   &:last-child { 
     border-bottom: none; 
@@ -405,6 +461,11 @@
 
   &:hover { 
     background-color: #f5f5f5; 
+  }
+
+  &:focus-visible {
+    outline: 2px solid $grey-40;
+    outline-offset: -2px;
   }
 }
 
@@ -420,9 +481,16 @@
   align-items: center;
   gap: 4px;
   padding-left: 8px;
+  outline: none;
+  border-radius: 4px;
   
   &:hover { 
     text-decoration: underline; 
+  }
+
+  &:focus-visible {
+    outline: 2px solid $grey-40;
+    outline-offset: 2px;
   }
   
   .chevronIcon { 
@@ -448,6 +516,14 @@
   font-weight: 600;
   font-size: 18px;
   cursor: pointer;
+  outline: none;
+  border-radius: 4px;
+  padding: 4px 8px;
+
+  &:focus-visible {
+    outline: 2px solid $primary-color;
+    outline-offset: 2px;
+  }
 }
 
 .applyBtn {
@@ -461,6 +537,17 @@
   font-size: 18px;
   cursor: pointer;
   transition: background-color 0.2s;
+  outline: none;
+
+  &:focus-visible {
+    outline: 2px solid $grey-40;
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
 }
 
 .errorMessage {
