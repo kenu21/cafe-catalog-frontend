@@ -1,18 +1,23 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from "./CafeCard.module.scss";
 import type { Cafe } from '../../utils/Cafe';
+import { isFavorite, toggleFavorite as toggleFavoriteService } from '../../utils/favoritesService';
 
 interface Props {
   cafe: Cafe;
-} 
+}
 
 export const CafeCard: React.FC<Props> = ({ cafe }) => {
   const navigate = useNavigate(); 
 
   const [rating, setRating] = useState(Math.round(cafe.rating));
   const [hover, setHover] = useState(0);
-  const [isFavorite, setIsFavorite] = useState(false);
+  const [isFavoriteState, setIsFavoriteState] = useState(false);
+
+  useEffect(() => {
+    setIsFavoriteState(isFavorite(cafe.id));
+  }, [cafe.id]);
 
   const handleCardClick = () => {
     navigate(`/cafe/${cafe.id}`);
@@ -25,7 +30,8 @@ export const CafeCard: React.FC<Props> = ({ cafe }) => {
   const toggleFavorite = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    setIsFavorite(!isFavorite);
+    const newFavoriteState = toggleFavoriteService(cafe);
+    setIsFavoriteState(newFavoriteState);
   };
 
   const renderPrice = (priceLevel: number) => {
@@ -60,7 +66,7 @@ export const CafeCard: React.FC<Props> = ({ cafe }) => {
           onClick={toggleFavorite}
         >
           <img 
-            src={isFavorite ? "/img/icons/Heart_Fill.svg" : "/img/icons/Heart.svg"} 
+            src={isFavoriteState ? "/img/icons/Heart_Fill.svg" : "/img/icons/Heart.svg"} 
             alt="Favorite" 
             className={styles.heartIcon} 
           />
