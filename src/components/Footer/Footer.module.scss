@@ -37,6 +37,13 @@
   line-height: 135%;
   color: $grey-40;
   font-weight: 400;
+  outline: none;
+  border-radius: 4px;
+
+  &:focus-visible {
+    outline: 2px solid $grey-40;
+    outline-offset: 2px;
+  }
 }
 
 .copyright {

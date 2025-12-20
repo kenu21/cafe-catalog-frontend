@@ -89,10 +89,16 @@
     color: #666;
     transition: all 0.2s ease;
     font-size: 16px;
+    outline: none;
 
     &:hover:not(:disabled) {
       background-color: #E0E0E0;
       color: #333;
+    }
+
+    &:focus-visible:not(:disabled) {
+      outline: 2px solid #666;
+      outline-offset: 2px;
     }
 
     &.active {
@@ -106,4 +112,3 @@
     }
   }
 }
-

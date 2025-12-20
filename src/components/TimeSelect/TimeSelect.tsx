@@ -32,23 +32,32 @@ export const TimeSelect: React.FC<TimeSelectProps> = ({ label, value, onChange }
 
   return (
     <div className={styles.timeInput} ref={wrapperRef}>
-      <label>{label}</label>
-      <div 
-        className={`${styles.customSelect} ${isOpen ? styles.open : ''}`} 
-        onClick={() => setIsOpen(!isOpen)}
-      >
-        <img src="/img/icons/clock.svg" alt="" className={styles.clockIcon} />
-        <span className={styles.selectedValue}>{value}</span>
-        <img 
-            src={isOpen ? "/img/icons/Up.svg" : "/img/icons/Bottom.svg"} 
-            alt="" 
-            className={styles.chevronIcon} 
-        />
+      <label htmlFor={`time-select-${label}`}>{label}</label>
+      <div style={{ position: 'relative' }}>
+        <button
+          id={`time-select-${label}`}
+          type="button"
+          className={`${styles.customSelect} ${isOpen ? styles.open : ''}`}
+          onClick={() => setIsOpen(!isOpen)}
+          aria-haspopup="listbox"
+          aria-expanded={isOpen}
+        >
+          <img src="/img/icons/clock.svg" alt="" className={styles.clockIcon} />
+          <span className={styles.selectedValue}>{value}</span>
+          <img 
+              src={isOpen ? "/img/icons/Up.svg" : "/img/icons/Bottom.svg"} 
+              alt="" 
+              className={styles.chevronIcon} 
+          />
+        </button>
         {isOpen && (
-          <div className={styles.optionsList}>
+          <div className={styles.optionsList} role="listbox">
             {TIME_OPTIONS.map((time) => (
-              <div 
-                key={time} 
+              <button
+                key={time}
+                type="button"
+                role="option"
+                aria-selected={time === value}
                 className={`${styles.optionItem} ${time === value ? styles.selected : ''}`}
                 onClick={(e) => {
                   e.stopPropagation();
@@ -57,7 +66,7 @@ export const TimeSelect: React.FC<TimeSelectProps> = ({ label, value, onChange }
                 }}
               >
                 {time}
-              </div>
+              </button>
             ))}
           </div>
         )}

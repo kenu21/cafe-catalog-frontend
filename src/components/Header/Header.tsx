@@ -49,15 +49,13 @@ export const Header: React.FC<Props> = ({ onFilterClick }) => {
            />
         </div>
 
-        <NavLink to="/Favourites" className={styles.navLinkButton}>
-          <button className={styles.header__button}>
-            <img 
-              className={styles.header__button_favourites} 
-              src="/img/icons/Heart.svg" 
-              alt="Favourites" 
-            />
-            Favourites
-          </button>
+        <NavLink to="/Favourites" className={styles.header__button}>
+          <img 
+            className={styles.header__button_favourites} 
+            src="/img/icons/Heart.svg" 
+            alt="Favourites" 
+          />
+          Favourites
         </NavLink>
 
       </div>

@@ -43,6 +43,7 @@
   border-radius: 25px;
   cursor: pointer;
   z-index: 2;
+  outline: none;
 
   display: flex;
   align-items: center;
@@ -55,6 +56,11 @@
     visibility: hidden;
     cursor: default;
     pointer-events: none
+  }
+
+  &:focus-visible:not(:disabled) {
+    outline: 2px solid $grey-40;
+    outline-offset: 2px;
   }
 
   &.prev {
