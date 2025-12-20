@@ -173,13 +173,21 @@
 .starsRowSmall {
   display: flex;
   gap: 8px;
-  img { width: 24px; height: 24px; }
+
+  img { 
+    width: 24px; 
+    height: 24px; 
+  }
 }
 
 .dollarRowSmall {
   display: flex;
   gap: 1px;
-  img { width: 24px; height: 24px; }
+  
+  img { 
+    width: 24px; 
+    height: 24px; 
+  }
 }
 
 .tags {

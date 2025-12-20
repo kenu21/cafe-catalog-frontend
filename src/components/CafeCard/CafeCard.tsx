@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom'; // 1. Додаємо хук для навігації
+import { useNavigate } from 'react-router-dom';
 import styles from "./CafeCard.module.scss";
 import type { Cafe } from '../../utils/Cafe';
 
@@ -8,13 +8,12 @@ interface Props {
 } 
 
 export const CafeCard: React.FC<Props> = ({ cafe }) => {
-  const navigate = useNavigate(); // 2. Ініціалізуємо хук
+  const navigate = useNavigate(); 
 
   const [rating, setRating] = useState(Math.round(cafe.rating));
   const [hover, setHover] = useState(0);
   const [isFavorite, setIsFavorite] = useState(false);
 
-  // 3. Функція переходу на сторінку кафе
   const handleCardClick = () => {
     navigate(`/cafe/${cafe.id}`);
   };
@@ -25,7 +24,7 @@ export const CafeCard: React.FC<Props> = ({ cafe }) => {
 
   const toggleFavorite = (e: React.MouseEvent) => {
     e.preventDefault();
-    e.stopPropagation(); // Зупиняємо клік, щоб не переходити на сторінку
+    e.stopPropagation();
     setIsFavorite(!isFavorite);
   };
 
@@ -48,7 +47,7 @@ export const CafeCard: React.FC<Props> = ({ cafe }) => {
   };
 
   return (
-    <article className={styles.card} onClick={handleCardClick}> {/* 4. Додаємо onClick на картку */}
+    <article className={styles.card} onClick={handleCardClick}>
       <div className={styles.imageWrapper}>
         <img 
           src={cafe.image}
@@ -88,7 +87,7 @@ export const CafeCard: React.FC<Props> = ({ cafe }) => {
                   type="button"
                   className={styles.starButton}
                   onClick={(e) => {
-                    e.stopPropagation(); // 5. Важливо: зупиняємо клік, щоб не переходити на сторінку при оцінюванні
+                    e.stopPropagation();
                     handleRate(index);
                   }}
                   onMouseEnter={() => setHover(index)}
