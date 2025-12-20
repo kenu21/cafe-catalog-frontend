@@ -126,7 +126,7 @@ export const SearchHero: React.FC<Props> = ({ isSmall = false, onFilterClick }) 
   const handleSelectCity = (cityName: string) => {
     setQuery(cityName); 
     navigate(`/search?query=${encodeURIComponent(cityName)}`);
-    setShowDropdown(true); 
+    setShowDropdown(false); 
   };
 
   return (
