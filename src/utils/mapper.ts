@@ -73,16 +73,39 @@ export const mapBackendToFrontend = (item: BackendCafe, index: number): Cafe => 
 
   const { isOpen, closingTime } = getScheduleStatus(item.openingHours);
 
+  const galleryPhotos: string[] = [];
+
+  if (item.photos && Array.isArray(item.photos)) {
+    item.photos.forEach(p => {
+      if (p.photoLink) galleryPhotos.push(p.photoLink);
+    });
+  }
+
+  if (galleryPhotos.length === 0 && item.mainPhoto?.photoLink) {
+    galleryPhotos.push(item.mainPhoto.photoLink);
+  }
+
+  const mainImage = item.mainPhoto?.photoLink || (galleryPhotos.length > 0 ? galleryPhotos[0] : '');
+
+  const tags = item.tags && Array.isArray(item.tags)
+    ? item.tags.map((t) => (typeof t === 'string' ? t : t.name))
+    : [];
+
   return {
-    id: index,
+    id: item.id ?? index,
     name: item.name,
-    image: item.photoLink,
+    
+    image: mainImage,
+    images: galleryPhotos, 
+    
     address: fullAddress,
     rating: item.rating,
     reviews: item.votesCount,
     price: item.priceRating,
     isOpen: isOpen,
     closingTime: closingTime,
-    tags: []
+    openingHours: item.openingHours,
+    tags: tags,
+    description: item.description || '' 
   };
 };

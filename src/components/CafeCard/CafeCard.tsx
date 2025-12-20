@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import styles from "./CafeCard.module.scss";
 import type { Cafe } from '../../utils/Cafe';
 
@@ -7,10 +8,15 @@ interface Props {
 } 
 
 export const CafeCard: React.FC<Props> = ({ cafe }) => {
+  const navigate = useNavigate(); 
 
   const [rating, setRating] = useState(Math.round(cafe.rating));
   const [hover, setHover] = useState(0);
   const [isFavorite, setIsFavorite] = useState(false);
+
+  const handleCardClick = () => {
+    navigate(`/cafe/${cafe.id}`);
+  };
 
   const handleRate = (value: number) => {
     setRating(value);
@@ -18,7 +24,7 @@ export const CafeCard: React.FC<Props> = ({ cafe }) => {
 
   const toggleFavorite = (e: React.MouseEvent) => {
     e.preventDefault();
-    e.stopPropagation(); 
+    e.stopPropagation();
     setIsFavorite(!isFavorite);
   };
 
@@ -41,7 +47,7 @@ export const CafeCard: React.FC<Props> = ({ cafe }) => {
   };
 
   return (
-    <article className={styles.card}>
+    <article className={styles.card} onClick={handleCardClick}>
       <div className={styles.imageWrapper}>
         <img 
           src={cafe.image}
@@ -80,7 +86,10 @@ export const CafeCard: React.FC<Props> = ({ cafe }) => {
                   key={index}
                   type="button"
                   className={styles.starButton}
-                  onClick={() => handleRate(index)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleRate(index);
+                  }}
                   onMouseEnter={() => setHover(index)}
                   onMouseLeave={() => setHover(0)}
                 >

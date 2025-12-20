@@ -1,4 +1,4 @@
-import type { BackendResponse, Cafe } from '../utils/Cafe';
+import type { BackendResponse, Cafe, BackendCafe } from '../utils/Cafe';
 import { mapBackendToFrontend } from '../utils/mapper';
 import type { FilterState } from '../components/Filter/Filter';
 
@@ -60,7 +60,7 @@ const getCafesRequest = async (url: string, params?: Record<string, string | num
   const data: BackendResponse = await response.json();
   const list = Array.isArray(data) ? data : data.content;
   
-  return list.map(mapBackendToFrontend);
+  return (list || []).map(mapBackendToFrontend);
 };
 
 export const getAllCafes = async (): Promise<Cafe[]> => {
@@ -91,15 +91,15 @@ export const getAllTags = async (): Promise<string[]> => {
 };
 
 export const getBestOffers = async (): Promise<Cafe[]> => {
-  return await getCafesRequest(CAFES_ENDPOINT, { sort: 'rating,desc', page: 0, size: 5 });
-};
-
-export const getChosenCafes = async (): Promise<Cafe[]> => {
-  return await getCafesRequest(CAFES_ENDPOINT, { sort: 'votesCount,desc', page: 0, size: 5 });
+  const cafes = await getCafesRequest(CAFES_ENDPOINT, { sort: 'rating,desc', page: 0, size: 100 });
+  
+  return cafes.sort((a, b) => b.rating - a.rating);
 };
 
 export const getNewCafes = async (): Promise<Cafe[]> => {
-  return await getCafesRequest(CAFES_ENDPOINT, { sort: 'id,desc', page: 0, size: 5 });
+  const cafes = await getCafesRequest(CAFES_ENDPOINT, { sort: 'id,desc', page: 0, size: 100 });
+  
+  return cafes.sort((a, b) => b.id - a.id);
 };
 
 export const searchCafes = async (query: string): Promise<Cafe[]> => {
@@ -124,14 +124,15 @@ export const filterCafes = async (filters: FilterState): Promise<Cafe[]> => {
   }
 
   if (filters.rating && filters.rating.length > 0) {
-    const minRating = Math.min(...filters.rating);
-    params.append('rating', minRating.toString());
+    filters.rating.forEach((r: number) => params.append('rating', r.toString()));
   }
 
   if (filters.timeFrom && filters.timeFrom !== '9:00 a.m.') {
     const time24h = convertTo24Hour(filters.timeFrom);
     params.append('openingHours', time24h);
   }
+
+  params.append('size', '100');
 
   const url = `${FILTER_ENDPOINT}?${params.toString()}`;
   
@@ -143,9 +144,21 @@ export const filterCafes = async (filters: FilterState): Promise<Cafe[]> => {
     }
     const data: BackendResponse = await response.json();
     const list = Array.isArray(data) ? data : data.content;
-    return list.map(mapBackendToFrontend);
+    return (list || []).map(mapBackendToFrontend);
   } catch (error) {
     console.error("Filter request failed:", error);
     return [];
   }
+};
+
+export const getCafeById = async (id: string | number): Promise<Cafe> => {
+  const url = `${CAFES_ENDPOINT}/${id}`;
+  const response = await fetch(url);
+  
+  if (!response.ok) {
+    throw new Error(`Error fetching cafe with id ${id}: ${response.status}`);
+  }
+
+  const data: BackendCafe = await response.json();
+  return mapBackendToFrontend(data, 0);
 };

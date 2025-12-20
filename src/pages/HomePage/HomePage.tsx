@@ -8,12 +8,11 @@ import { CafeSection } from '../../components/CafeSection/CafeSection';
 import { FilterModal } from '../../components/Filter/Filter';
 
 import type { Cafe } from '../../utils/Cafe';
-import { getBestOffers, getChosenCafes, getNewCafes } from '../../utils/cafeService'; 
+import { getBestOffers, getNewCafes } from '../../utils/cafeService'; 
 
 export const HomePage = () => {
   
   const [bestOffers, setBestOffers] = useState<Cafe[]>([]);
-  const [chosenForYou, setChosenForYou] = useState<Cafe[]>([]);
   const [newAndNoteworthy, setNewAndNoteworthy] = useState<Cafe[]>([]);
   
   const [isLoading, setIsLoading] = useState(true);
@@ -25,13 +24,11 @@ export const HomePage = () => {
     const loadData = async () => {
       try {
         setIsLoading(true);
-        const [bestData, chosenData, newData] = await Promise.all([
+        const [bestData, newData] = await Promise.all([
           getBestOffers(), 
-          getChosenCafes(), 
           getNewCafes()      
         ]);
         setBestOffers(bestData);
-        setChosenForYou(chosenData);
         setNewAndNoteworthy(newData);
       } catch (err) {
         console.error("Помилка:", err);
@@ -72,19 +69,16 @@ export const HomePage = () => {
 
   return (
     <div className={styles.pageWrapper}>
-      {/* Передаємо функцію відкриття, щоб Header міг відкрити модалку */}
       <Header onFilterClick={handleOpenFilters} />
       
       <main className={styles.mainContent}>
         <div className='container'>
-          {/* Hero також може відкривати модалку */}
           <Hero onFilterClick={handleOpenFilters} />
 
           {bestOffers.length > 0 && <CafeSection title='Our best offers' cafes={bestOffers} />}
-          {chosenForYou.length > 0 && <CafeSection title='Cafés chosen for you' cafes={chosenForYou} />}
           {newAndNoteworthy.length > 0 && <CafeSection title='New and noteworthy' cafes={newAndNoteworthy} />}
 
-          {bestOffers.length === 0 && chosenForYou.length === 0 && newAndNoteworthy.length === 0 && (
+          {bestOffers.length === 0 && newAndNoteworthy.length === 0 && (
             <div className={styles.emptyState}>Кав'ярень у базі поки немає.</div>
           )}
         </div>
@@ -92,7 +86,6 @@ export const HomePage = () => {
       
       <Footer />
 
-      {/* FilterModal тепер отримує тільки стан відкриття */}
       <FilterModal 
         isOpen={isFilterOpen} 
         onClose={handleCloseFilters} 

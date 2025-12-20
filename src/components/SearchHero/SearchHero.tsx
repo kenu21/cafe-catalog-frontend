@@ -10,7 +10,7 @@ const POPULAR_CITIES = [
   { name: 'Kyiv', count: 2345, img: '/img/cities/Kyiv.svg' },
   { name: 'Lviv', count: 2545, img: '/img/cities/Lviv.svg' },
   { name: 'Dnipro', count: 1345, img: '/img/cities/Dnipro.svg' },
-  { name: 'Odessa', count: 1245, img: '/img/cities/Odessa.svg' },
+  { name: 'Odesa', count: 1245, img: '/img/cities/Odessa.svg' },
   { name: 'Kharkiv', count: 945, img: '/img/cities/Kharkiv.svg' },
   { name: 'Vinnytsia', count: 955, img: '/img/cities/Vinnytsia.svg' },
 ];

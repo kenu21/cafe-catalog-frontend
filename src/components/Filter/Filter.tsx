@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import styles from './Filter.module.scss';
 import { TimeSelect } from '../TimeSelect/TimeSelect';
 import { getAllTags } from '../../utils/cafeService';
@@ -33,6 +33,7 @@ const parseTime = (timeStr: string): number => {
 
 export const FilterModal: React.FC<Props> = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams(); 
   
   const [availableTags, setAvailableTags] = useState<string[]>([]);
   const [isLoadingTags, setIsLoadingTags] = useState(false);
@@ -45,6 +46,24 @@ export const FilterModal: React.FC<Props> = ({ isOpen, onClose }) => {
 
   const [timeError, setTimeError] = useState<string | null>(null);
   const [isTagsExpanded, setIsTagsExpanded] = useState(false);
+
+  useEffect(() => {
+    if (isOpen) {
+      const tagsFromUrl = searchParams.getAll('tags');
+      setSelectedTags(tagsFromUrl);
+
+      const ratingFromUrl = searchParams.getAll('rating').map(Number);
+      setRating(ratingFromUrl);
+
+      const pricesFromUrl = searchParams.getAll('priceRating').map(Number);
+      setPrices(pricesFromUrl);
+
+      const openingHoursParam = searchParams.get('openingHours');
+      if (openingHoursParam) {
+        setTimeFrom(openingHoursParam);
+      }
+    }
+  }, [isOpen, searchParams]);
 
   useEffect(() => {
     if (isOpen) {
@@ -97,6 +116,7 @@ export const FilterModal: React.FC<Props> = ({ isOpen, onClose }) => {
     if (timeError) return;
 
     const params = new URLSearchParams();
+    
     selectedTags.forEach(tag => params.append('tags', tag));
     prices.forEach(p => params.append('priceRating', p.toString()));
     rating.forEach(r => params.append('rating', r.toString()));
@@ -104,6 +124,8 @@ export const FilterModal: React.FC<Props> = ({ isOpen, onClose }) => {
     if (timeFrom && timeFrom !== '9:00 a.m.') {
       params.append('openingHours', timeFrom);
     }
+
+    params.append('size', '100');
 
     navigate(`/filter?${params.toString()}`);
     onClose();
