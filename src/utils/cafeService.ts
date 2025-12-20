@@ -158,7 +158,7 @@ export const getCafeById = async (id: string | number): Promise<Cafe> => {
   if (!response.ok) {
     throw new Error(`Error fetching cafe with id ${id}: ${response.status}`);
   }
-  
+
   const data: BackendCafe = await response.json();
   return mapBackendToFrontend(data, 0);
 };
