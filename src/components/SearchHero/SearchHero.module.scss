@@ -97,6 +97,11 @@
   
   background: transparent;
   transition: font-size 0.3s ease;
+
+  &:focus-visible {
+    outline: 2px solid $grey-40;
+    outline-offset: 2px;
+  }
 }
 
 .searchBtn {
@@ -113,10 +118,15 @@
   line-height: 135%;
   font-weight: 600;
   transition: all 0.3s ease;
+  outline: none;
 
   height: 100%; 
   box-sizing: border-box;
 
+  &:focus-visible {
+    outline: 2px solid $grey-40;
+    outline-offset: 2px;
+  }
 }
 
 .filterBtn {
@@ -135,8 +145,14 @@
   align-items: center;
   cursor: pointer;
   transition: all 0.3s ease;
+  outline: none;
 
   position: relative;
+
+  &:focus-visible {
+    outline: 2px solid $grey-40;
+    outline-offset: 2px;
+  }
 }
 
 .filterBadge {
@@ -256,6 +272,8 @@
   
   cursor: pointer;
   border-radius: 5px;
+  text-decoration: none;
+  outline: none;
   
   &:hover {
     box-shadow: 0 0 0 5px $primary-90;
@@ -265,6 +283,11 @@
   &:active {
     box-shadow: 0 0 0 5px $primary-95;
     background-color: $primary-95;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $grey-40;
+    outline-offset: 2px;
   }
 }
 
@@ -281,6 +304,12 @@
   gap: 12px;
   border-radius: 8px;
   cursor: pointer;
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: none;
+  padding: 0;
+  outline: none;
 
   &:hover {
     box-shadow: 0 0 0 5px $primary-90;
@@ -290,6 +319,11 @@
   &:active {
     box-shadow: 0 0 0 5px $primary-95;
     background-color: $primary-95;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $grey-40;
+    outline-offset: 2px;
   }
 }
 
@@ -334,6 +368,12 @@
   gap: 16px;
   cursor: pointer;
   border-radius: 8px;
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: none;
+  padding: 0;
+  outline: none;
 
   &:hover {
     box-shadow: 0 0 0 5px $primary-90;
@@ -343,6 +383,11 @@
   &:active {
     box-shadow: 0 0 0 5px $primary-95;
     background-color: $primary-95;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $grey-40;
+    outline-offset: 2px;
   }
 }
 
