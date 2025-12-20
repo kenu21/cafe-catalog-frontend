@@ -12,6 +12,9 @@
   display: flex;
   flex-direction: column;
 
+  &:hover {
+    border: 1px solid $grey-40;
+  }
 }
 
 .imageWrapper {
@@ -50,6 +53,11 @@
   position: absolute;
   bottom: 16px;
   left: 16px;
+  
+  max-width: calc(100% - 32px);
+  word-wrap: break-word;
+  width: fit-content;
+
   background-color: #FFFFFFBF;
   padding: 8px 16px;
   border-radius: 10px;
@@ -138,7 +146,6 @@
 .priceContainer {
   display: flex;
   align-items: center;
-  gap: 1px;
 }
 
 .dollarActive img {
@@ -186,4 +193,3 @@
   line-height: 135%;
   color: $grey-20;
 }
-
