@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import styles from './Filter.module.scss';
 import { TimeSelect } from '../TimeSelect/TimeSelect';
 import { getAllTags } from '../../utils/cafeService';
+import { saveFilters, getFilters, clearFilters as clearStoredFilters } from '../../utils/filterService';
 
 export interface FilterState {
   tags: string[];
@@ -50,17 +51,35 @@ export const FilterModal: React.FC<Props> = ({ isOpen, onClose }) => {
   useEffect(() => {
     if (isOpen) {
       const tagsFromUrl = searchParams.getAll('tags');
-      setSelectedTags(tagsFromUrl);
-
       const ratingFromUrl = searchParams.getAll('rating').map(Number);
-      setRating(ratingFromUrl);
-
       const pricesFromUrl = searchParams.getAll('priceRating').map(Number);
-      setPrices(pricesFromUrl);
-
       const openingHoursParam = searchParams.get('openingHours');
-      if (openingHoursParam) {
-        setTimeFrom(openingHoursParam);
+
+      if (tagsFromUrl.length > 0 || ratingFromUrl.length > 0 || pricesFromUrl.length > 0 || openingHoursParam) {
+        setSelectedTags(tagsFromUrl);
+        setRating(ratingFromUrl);
+        setPrices(pricesFromUrl);
+        if (openingHoursParam) {
+          setTimeFrom(openingHoursParam);
+        } else {
+          setTimeFrom('9:00 a.m.');
+        }
+        setTimeTo('9:00 p.m.');
+      } else {
+        const savedFilters = getFilters();
+        if (savedFilters) {
+          setSelectedTags(savedFilters.tags || []);
+          setRating(savedFilters.rating || []);
+          setPrices(savedFilters.prices || []);
+          setTimeFrom(savedFilters.timeFrom || '9:00 a.m.');
+          setTimeTo(savedFilters.timeTo || '9:00 p.m.');
+        } else {
+          setSelectedTags([]);
+          setRating([]);
+          setPrices([]);
+          setTimeFrom('9:00 a.m.');
+          setTimeTo('9:00 p.m.');
+        }
       }
     }
   }, [isOpen, searchParams]);
@@ -110,10 +129,20 @@ export const FilterModal: React.FC<Props> = ({ isOpen, onClose }) => {
     setTimeTo('9:00 p.m.');
     setTimeFrom('9:00 a.m.');
     setTimeError(null);
+    clearStoredFilters();
   };
 
   const handleApply = () => {
     if (timeError) return;
+
+    const filterState: FilterState = {
+      tags: selectedTags,
+      rating: rating,
+      prices: prices,
+      timeFrom: timeFrom,
+      timeTo: timeTo
+    };
+    saveFilters(filterState);
 
     const params = new URLSearchParams();
     

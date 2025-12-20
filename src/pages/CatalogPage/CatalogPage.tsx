@@ -10,6 +10,7 @@ import { CafeCard } from '../../components/CafeCard/CafeCard';
 
 import { getAllCafes, searchCafes, filterCafes } from '../../utils/cafeService';
 import type { Cafe } from '../../utils/Cafe';
+import { saveFilters } from '../../utils/filterService';
 
 const ITEMS_PER_PAGE = 8;
 
@@ -44,8 +45,9 @@ export const CatalogPage = () => {
             prices: searchParams.getAll('priceRating').map(Number),
             rating: searchParams.getAll('rating').map(Number),
             timeFrom: searchParams.get('openingHours') || '',
-            timeTo: ''
+            timeTo: '9:00 p.m.'
           };
+          saveFilters(filterData);
           data = await filterCafes(filterData);
         } else {
           data = await getAllCafes();
