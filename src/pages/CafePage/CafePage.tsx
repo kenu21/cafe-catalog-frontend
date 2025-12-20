@@ -8,6 +8,7 @@ import { FilterModal } from '../../components/Filter/Filter';
 
 import { getCafeById } from '../../utils/cafeService';
 import type { Cafe } from '../../utils/Cafe';
+import { TAG_ICONS, DEFAULT_ICON } from '../../utils/tagIcons';
 
 export const CafePage = () => {
   const { id } = useParams<{ id: string }>();
@@ -147,8 +148,8 @@ export const CafePage = () => {
                   </span>
                   {cafe.isOpen && (
                     <>
-                       <span className={styles.arrow}><img src="/img/icons/Arrow.svg" alt="" /></span> 
-                       <span className={styles.time}>until {cafe.closingTime}</span>
+                        <span className={styles.arrow}><img src="/img/icons/Arrow.svg" alt="" /></span> 
+                        <span className={styles.time}>until {cafe.closingTime}</span>
                     </>
                   )}
                 </div>
@@ -169,20 +170,31 @@ export const CafePage = () => {
           <div className={styles.contentGrid}>
             <div className={styles.leftCol}>
               <h3 className={styles.sectionTitle}>What this place offers</h3>
+              
+              {/* 👇 ТУТ ЗМІНЕНО ЛОГІКУ ВІДОБРАЖЕННЯ ТЕГІВ */}
               <div className={styles.featuresList}>
                 {displayedTags.length > 0 ? (
-                  displayedTags.map((tag, idx) => (
-                    <div key={idx} className={styles.featureItem}>
-                      <span className={styles.iconBox}>
-                        <img src="/img/icons/Frame.svg" alt="" /> 
-                      </span>
-                      {tag}
-                    </div>
-                  ))
+                  displayedTags.map((tag, idx) => {
+                    // Приводимо до нижнього регістру для пошуку в словнику
+                    const lowerTag = tag.toLowerCase();
+                    // Шукаємо іконку або ставимо дефолтну
+                    const iconSrc = TAG_ICONS[lowerTag] || DEFAULT_ICON;
+
+                    return (
+                      <div key={idx} className={styles.featureItem}>
+                        <span className={styles.iconBox}>
+                          <img src={iconSrc} alt={tag} /> 
+                        </span>
+                        {/* Робимо першу букву великою для краси */}
+                        <span style={{ textTransform: 'capitalize' }}>{lowerTag}</span>
+                      </div>
+                    );
+                  })
                 ) : (
                   <p className={styles.noData}>No specific features listed</p>
                 )}
               </div>
+              
               {cafe.tags.length > 3 && (
                 <button 
                   className={styles.showMore} 
