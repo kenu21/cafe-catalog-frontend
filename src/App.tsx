@@ -3,7 +3,8 @@ import './App.scss';
 
 import { HomePage } from './pages/HomePage/HomePage';
 import { CatalogPage } from './pages/CatalogPage/CatalogPage';
-import { CafePage } from './pages/CafePage/CafePage'; 
+import { CafePage } from './pages/CafePage/CafePage';
+import { FavouritesPage } from './pages/FavouritesPage/FavouritesPage';
 import { ScrollToTop } from './utils/ScrollToTop';
 
 export const App = () => {
@@ -15,7 +16,8 @@ export const App = () => {
         <Route path="/" element={<HomePage />} />
         <Route path="/search" element={<CatalogPage />} />
         <Route path="/filter" element={<CatalogPage />} />
-        <Route path="/cafe/:id" element={<CafePage />} /> 
+        <Route path="/cafe/:id" element={<CafePage />} />
+        <Route path="/Favourites" element={<FavouritesPage />} />
       </Routes>
     </div>
   );

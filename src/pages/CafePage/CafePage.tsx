@@ -9,6 +9,7 @@ import { FilterModal } from '../../components/Filter/Filter';
 import { getCafeById } from '../../utils/cafeService';
 import type { Cafe } from '../../utils/Cafe';
 import { TAG_ICONS, DEFAULT_ICON } from '../../utils/tagIcons';
+import { isFavorite, toggleFavorite as toggleFavoriteService } from '../../utils/favoritesService';
 
 export const CafePage = () => {
   const { id } = useParams<{ id: string }>();
@@ -23,6 +24,7 @@ export const CafePage = () => {
   const [isTagsExpanded, setIsTagsExpanded] = useState(false);
   const [isDescExpanded, setIsDescExpanded] = useState(false);
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [isFavoriteState, setIsFavoriteState] = useState(false);
 
   useEffect(() => {
     const loadCafe = async () => {
@@ -32,6 +34,7 @@ export const CafePage = () => {
       try {
         const data = await getCafeById(id);
         setCafe(data);
+        setIsFavoriteState(isFavorite(data.id));
       } catch (err) {
         console.error("Failed to load cafe", err);
         setError('Failed to load cafe data');
@@ -41,6 +44,13 @@ export const CafePage = () => {
     };
     loadCafe();
   }, [id]);
+
+  const handleToggleFavorite = () => {
+    if (cafe) {
+      const newFavoriteState = toggleFavoriteService(cafe);
+      setIsFavoriteState(newFavoriteState);
+    }
+  };
 
   if (isLoading) return <div className={styles.loader}>Loading...</div>;
   if (error || !cafe) return <div className={styles.error}>{error || 'Cafe not found'}</div>;
@@ -163,7 +173,12 @@ export const CafePage = () => {
             </div>
 
             <div className={styles.rightInfo}>
-              <button className={styles.favBtn}>Add to Favourites</button>
+              <button 
+                className={styles.favBtn}
+                onClick={handleToggleFavorite}
+              >
+                {isFavoriteState ? 'Remove from Favourites' : 'Add to Favourites'}
+              </button>
             </div>
           </div>
 
