@@ -11,9 +11,17 @@ const CAFES_ENDPOINT = `${API_BASE_URL}/cafes`;
 const TAGS_ENDPOINT = `${API_BASE_URL}/tags`;
 const FILTER_ENDPOINT = `${API_BASE_URL}/filter`;
 const SEARCH_ENDPOINT = `${API_BASE_URL}/search`;
+const CITIES_ENDPOINT = `${API_BASE_URL}/cities/cafes-count`;
+
+const KNOWN_CITIES = ['Kyiv', 'Lviv', 'Dnipro', 'Odesa', 'Kharkiv', 'Vinnytsia'];
 
 interface BackendTag {
   name: string;
+}
+
+export interface CityDto {
+  cityName: string;
+  cafesCount: number;
 }
 
 const convertTo24Hour = (time12h: string): string => {
@@ -90,14 +98,35 @@ export const getAllTags = async (): Promise<string[]> => {
   }
 };
 
+export const getPopularCities = async (): Promise<CityDto[]> => {
+  try {
+    const response = await fetch(CITIES_ENDPOINT);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch cities: ${response.status}`);
+    }
+    return await response.json();
+  } catch (error) {
+    console.error("Error loading cities:", error);
+    return [];
+  }
+};
+
 export const getBestOffers = async (): Promise<Cafe[]> => {
-  const cafes = await getCafesRequest(CAFES_ENDPOINT, { sort: 'rating,desc', page: 0, size: 100 });
+  const cafes = await getCafesRequest(CAFES_ENDPOINT, { 
+    sort: 'rating,desc', 
+    page: 0, 
+    size: 100 
+  });
   
   return cafes.sort((a, b) => b.rating - a.rating);
 };
 
 export const getNewCafes = async (): Promise<Cafe[]> => {
-  const cafes = await getCafesRequest(CAFES_ENDPOINT, { sort: 'id,desc', page: 0, size: 100 });
+  const cafes = await getCafesRequest(CAFES_ENDPOINT, { 
+    sort: 'id,desc', 
+    page: 0, 
+    size: 100 
+  });
   
   return cafes.sort((a, b) => b.id - a.id);
 };
@@ -105,7 +134,21 @@ export const getNewCafes = async (): Promise<Cafe[]> => {
 export const searchCafes = async (query: string): Promise<Cafe[]> => {
   if (!query) return [];
   try {
-    return await getCafesRequest(SEARCH_ENDPOINT, { query: query });
+    const cafes = await getCafesRequest(SEARCH_ENDPOINT, { query: query });
+
+    const cleanQuery = query.trim().toLowerCase();
+    
+    const isCitySearch = KNOWN_CITIES.some(
+      city => city.toLowerCase() === cleanQuery
+    );
+
+    if (isCitySearch) {
+      return cafes.filter(cafe => 
+        cafe.address && cafe.address.toLowerCase().includes(cleanQuery)
+      );
+    }
+
+    return cafes;
   } catch (error) {
     console.error("Search error:", error);
     return [];

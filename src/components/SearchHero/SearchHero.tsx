@@ -2,18 +2,24 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './SearchHero.module.scss';
 
-import { searchCafes, getAllCafes } from '../../utils/cafeService'; 
+import { searchCafes, getAllCafes, getPopularCities } from '../../utils/cafeService'; 
 import type { Cafe } from '../../utils/Cafe';
 import { useFilterCount } from '../../utils/useFilterCount';
 
-const POPULAR_CITIES = [
-  { name: 'Kyiv', count: 2345, img: '/img/cities/Kyiv.svg' },
-  { name: 'Lviv', count: 2545, img: '/img/cities/Lviv.svg' },
-  { name: 'Dnipro', count: 1345, img: '/img/cities/Dnipro.svg' },
-  { name: 'Odesa', count: 1245, img: '/img/cities/Odessa.svg' },
-  { name: 'Kharkiv', count: 945, img: '/img/cities/Kharkiv.svg' },
-  { name: 'Vinnytsia', count: 955, img: '/img/cities/Vinnytsia.svg' },
-];
+const CITY_IMAGES: Record<string, string> = {
+  'Kyiv': '/img/cities/Kyiv.svg',
+  'Lviv': '/img/cities/Lviv.svg',
+  'Dnipro': '/img/cities/Dnipro.svg',
+  'Odesa': '/img/cities/Odessa.svg', 
+  'Kharkiv': '/img/cities/Kharkiv.svg',
+  'Vinnytsia': '/img/cities/Vinnytsia.svg',
+};
+
+interface CityView {
+  name: string;
+  count: number;
+  img: string;
+}
 
 interface Props {
   isSmall?: boolean;
@@ -24,18 +30,35 @@ export const SearchHero: React.FC<Props> = ({ isSmall = false, onFilterClick }) 
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<Cafe[]>([]);
   const [recommendations, setRecommendations] = useState<Cafe[]>([]);
+  
+  const [popularCities, setPopularCities] = useState<CityView[]>([]);
+  
   const [showDropdown, setShowDropdown] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   const navigate = useNavigate();
   const wrapperRef = useRef<HTMLDivElement>(null);
-
   const filterCount = useFilterCount();
 
   useEffect(() => {
     getAllCafes()
       .then(data => setRecommendations(data.slice(0, 3)))
       .catch(err => console.error("Failed to load recommendations", err));
+
+    getPopularCities()
+      .then((data) => {
+        if (data && data.length > 0) {
+          const formattedCities = data.map(city => ({
+            name: city.cityName, 
+            count: city.cafesCount,
+            img: CITY_IMAGES[city.cityName] 
+          }));
+          setPopularCities(formattedCities);
+        }
+      })
+      .catch(err => {
+        console.error("Помилка завантаження міст:", err);
+      });
   }, []);
 
   useEffect(() => {
@@ -49,7 +72,21 @@ export const SearchHero: React.FC<Props> = ({ isSmall = false, onFilterClick }) 
       setIsLoading(true);
       try {
         const data = await searchCafes(query);
-        setResults(data.slice(0, 5)); 
+        
+        let filteredData = data;
+        const cleanQuery = query.trim().toLowerCase();
+
+        const isCitySearch = Object.keys(CITY_IMAGES).some(
+           city => city.toLowerCase() === cleanQuery
+        );
+
+        if (isCitySearch) {
+             filteredData = data.filter(cafe => 
+                cafe.address && cafe.address.toLowerCase().includes(cleanQuery)
+             );
+        }
+
+        setResults(filteredData.slice(0, 5)); 
       } catch (error) {
         console.error(error);
       } finally {
@@ -78,9 +115,7 @@ export const SearchHero: React.FC<Props> = ({ isSmall = false, onFilterClick }) 
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      handleSearchSubmit();
-    }
+    if (e.key === 'Enter') handleSearchSubmit();
   };
 
   const handleSelectCafe = (id: number) => {
@@ -159,15 +194,19 @@ export const SearchHero: React.FC<Props> = ({ isSmall = false, onFilterClick }) 
             <div className={styles.columnRight}>
               <div className={styles.sectionTitle}>Popular cities in Ukraine</div>
               <div className={styles.citiesGrid}>
-                {POPULAR_CITIES.map(city => (
-                  <div key={city.name} className={styles.cityItem} onClick={() => handleSelectCity(city.name)}>
-                    <img src={city.img} alt={city.name} className={styles.cityImg} />
-                    <div className={styles.cityInfo}>
-                      <span className={styles.cityName}>{city.name}</span>
-                      {city.count && <span className={styles.cityCount}>({city.count})</span>}
+                {popularCities.length > 0 ? (
+                  popularCities.map(city => (
+                    <div key={city.name} className={styles.cityItem} onClick={() => handleSelectCity(city.name)}>
+                      <img src={city.img} alt={city.name} className={styles.cityImg} />
+                      <div className={styles.cityInfo}>
+                        <span className={styles.cityName}>{city.name}</span>
+                        <span className={styles.cityCount}>({city.count})</span>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))
+                ) : (
+                   <div style={{ padding: '10px', color: '#999', fontSize: '14px' }}>Loading...</div>
+                )}
               </div>
             </div>
           </div>
