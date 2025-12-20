@@ -76,6 +76,12 @@
     width: 24px;
     height: 24px;
   }
+
+  &.active {
+    background-color: $primary-95;
+    border-color: $primary-color;
+    color: $primary-color;
+  }
 }
 
 .stickySearch {
