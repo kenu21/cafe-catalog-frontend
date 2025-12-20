@@ -32,7 +32,7 @@ export const HomePage = () => {
         setNewAndNoteworthy(newData);
       } catch (err) {
         console.error("Помилка:", err);
-        setError('Не вдалося завантажити дані. Перевірте, чи запущено Docker.');
+        setError('Не вдалося завантажити дані.');
       } finally {
         setIsLoading(false);
       }
