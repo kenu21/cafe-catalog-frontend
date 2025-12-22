@@ -203,5 +203,6 @@ export const getCafeById = async (id: string | number): Promise<Cafe> => {
   }
 
   const data: BackendCafe = await response.json();
-  return mapBackendToFrontend(data, 0);
+  const fallbackId = Number(id) || 0;
+  return mapBackendToFrontend(data, fallbackId);
 };
