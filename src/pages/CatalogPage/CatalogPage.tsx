@@ -40,12 +40,31 @@ export const CatalogPage = () => {
         if (query) {
           data = await searchCafes(query);
         } else if (hasFilters) {
+          const openingHoursParam = searchParams.get('openingHours');
+          let timeFrom = '';
+          let timeTo = '9:00 p.m.';
+          
+          if (openingHoursParam) {
+            const [timeFrom24, timeTo24] = openingHoursParam.split('-');
+            if (timeFrom24 && timeTo24) {
+              const convertFrom24To12 = (time24: string): string => {
+                const [hours, minutes] = time24.trim().split(':').map(Number);
+                if (hours === 0) return `12:${minutes.toString().padStart(2, '0')} a.m.`;
+                if (hours < 12) return `${hours}:${minutes.toString().padStart(2, '0')} a.m.`;
+                if (hours === 12) return `12:${minutes.toString().padStart(2, '0')} p.m.`;
+                return `${hours - 12}:${minutes.toString().padStart(2, '0')} p.m.`;
+              };
+              timeFrom = convertFrom24To12(timeFrom24.trim());
+              timeTo = convertFrom24To12(timeTo24.trim());
+            }
+          }
+          
           const filterData: FilterState = {
             tags: searchParams.getAll('tags'),
             prices: searchParams.getAll('priceRating').map(Number),
             rating: searchParams.getAll('rating').map(Number),
-            timeFrom: searchParams.get('openingHours') || '',
-            timeTo: '9:00 p.m.'
+            timeFrom: timeFrom,
+            timeTo: timeTo
           };
           saveFilters(filterData);
           data = await filterCafes(filterData);
