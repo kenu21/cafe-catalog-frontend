@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, NavLink } from 'react-router-dom';
 import styles from './SearchHero.module.scss';
 
 import { searchCafes, getAllCafes, getPopularCities } from '../../utils/cafeService'; 
@@ -38,7 +38,6 @@ export const SearchHero: React.FC<Props> = ({ isSmall = false, onFilterClick }) 
 
   const navigate = useNavigate();
   const wrapperRef = useRef<HTMLDivElement>(null);
-  
   const filterCount = useFilterCount();
 
   useEffect(() => {
@@ -52,12 +51,14 @@ export const SearchHero: React.FC<Props> = ({ isSmall = false, onFilterClick }) 
           const formattedCities = data.map(city => ({
             name: city.cityName, 
             count: city.cafesCount,
-            img: CITY_IMAGES[city.cityName] || '/img/cities/Kyiv.svg'
+            img: CITY_IMAGES[city.cityName] 
           }));
           setPopularCities(formattedCities);
         }
       })
-      .catch(err => console.error("Помилка завантаження міст:", err));
+      .catch(err => {
+        console.error("Помилка завантаження міст:", err);
+      });
   }, []);
 
   useEffect(() => {
@@ -71,7 +72,21 @@ export const SearchHero: React.FC<Props> = ({ isSmall = false, onFilterClick }) 
       setIsLoading(true);
       try {
         const data = await searchCafes(query);
-        setResults(data.slice(0, 5)); 
+        
+        let filteredData = data;
+        const cleanQuery = query.trim().toLowerCase();
+
+        const isCitySearch = Object.keys(CITY_IMAGES).some(
+           city => city.toLowerCase() === cleanQuery
+        );
+
+        if (isCitySearch) {
+             filteredData = data.filter(cafe => 
+                cafe.address && cafe.address.toLowerCase().includes(cleanQuery)
+             );
+        }
+
+        setResults(filteredData.slice(0, 5)); 
       } catch (error) {
         console.error(error);
       } finally {
@@ -135,22 +150,27 @@ export const SearchHero: React.FC<Props> = ({ isSmall = false, onFilterClick }) 
             <div className={styles.columnLeft}>
               {query.trim().length === 0 ? (
                 <>
-                  <div className={styles.headerLink} onClick={() => navigate('/search')}>
+                  <NavLink to="/search" className={styles.headerLink}>
                     <img src="/img/icons/cup.svg" alt="" style={{ width: 24 }} />
                     <span>See all coffee shops</span>
                     <img src="/img/icons/Arrow-right.svg" alt="" className={styles.arrowIcon} />
-                  </div>
+                  </NavLink>
                   
                   <div className={styles.sectionTitle}>Must be visited</div>
                   
                   {recommendations.map(cafe => (
-                    <div key={cafe.id} className={styles.resultItem} onClick={() => handleSelectCafe(cafe.id)}>
+                    <button 
+                      key={cafe.id} 
+                      type="button"
+                      className={styles.resultItem} 
+                      onClick={() => handleSelectCafe(cafe.id)}
+                    >
                       <img src="/img/icons/Geolocation.svg" alt="" className={styles.pinIcon} />
                       <div className={styles.itemInfo}>
                         <span className={styles.itemName}>{cafe.name}</span>
                         <span className={styles.itemAddress}>{cafe.address}</span>
                       </div>
-                    </div>
+                    </button>
                   ))}
                 </>
               ) : (
@@ -161,13 +181,18 @@ export const SearchHero: React.FC<Props> = ({ isSmall = false, onFilterClick }) 
                     <div className={styles.message}>Searching...</div>
                   ) : results.length > 0 ? (
                     results.map(cafe => (
-                      <div key={cafe.id} className={styles.resultItem} onClick={() => handleSelectCafe(cafe.id)}>
+                      <button 
+                        key={cafe.id} 
+                        type="button"
+                        className={styles.resultItem} 
+                        onClick={() => handleSelectCafe(cafe.id)}
+                      >
                         <img src="/img/icons/Geolocation.svg" alt="" className={styles.pinIcon} />
                         <div className={styles.itemInfo}>
                           <span className={styles.itemName}>{cafe.name}</span>
                           <span className={styles.itemAddress}>{cafe.address}</span>
                         </div>
-                      </div>
+                      </button>
                     ))
                   ) : (
                     <div className={styles.message}>No cafes found :(</div>
@@ -181,13 +206,18 @@ export const SearchHero: React.FC<Props> = ({ isSmall = false, onFilterClick }) 
               <div className={styles.citiesGrid}>
                 {popularCities.length > 0 ? (
                   popularCities.map(city => (
-                    <div key={city.name} className={styles.cityItem} onClick={() => handleSelectCity(city.name)}>
+                    <button 
+                      key={city.name} 
+                      type="button"
+                      className={styles.cityItem} 
+                      onClick={() => handleSelectCity(city.name)}
+                    >
                       <img src={city.img} alt={city.name} className={styles.cityImg} />
                       <div className={styles.cityInfo}>
                         <span className={styles.cityName}>{city.name}</span>
                         <span className={styles.cityCount}>({city.count})</span>
                       </div>
-                    </div>
+                    </button>
                   ))
                 ) : (
                    <div style={{ padding: '10px', color: '#999', fontSize: '14px' }}>Loading...</div>
