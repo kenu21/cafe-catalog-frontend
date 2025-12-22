@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import styles from './Filter.module.scss';
 import { TimeSelect } from '../TimeSelect/TimeSelect';
 import { getAllTags } from '../../utils/cafeService';
-import { saveFilters, getFilters, clearFilters as clearStoredFilters } from '../../utils/filterService';
+import { useFilterContext } from '../../utils/FilterContext';
 
 export interface FilterState {
   tags: string[];
@@ -34,7 +34,8 @@ const parseTime = (timeStr: string): number => {
 
 export const FilterModal: React.FC<Props> = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams(); 
+  
+  const { filters, setFilters } = useFilterContext();
   
   const [availableTags, setAvailableTags] = useState<string[]>([]);
   const [isLoadingTags, setIsLoadingTags] = useState(false);
@@ -48,51 +49,18 @@ export const FilterModal: React.FC<Props> = ({ isOpen, onClose }) => {
   const [timeError, setTimeError] = useState<string | null>(null);
   const [isTagsExpanded, setIsTagsExpanded] = useState(false);
 
-  const modalRef = useRef<HTMLDivElement>(null);
-  const previousActiveElement = useRef<HTMLElement | null>(null);
-  const closeButtonRef = useRef<HTMLButtonElement>(null);
-
   useEffect(() => {
     if (isOpen) {
-      const tagsFromUrl = searchParams.getAll('tags');
-      const ratingFromUrl = searchParams.getAll('rating').map(Number);
-      const pricesFromUrl = searchParams.getAll('priceRating').map(Number);
-      const openingHoursParam = searchParams.get('openingHours');
-
-      if (tagsFromUrl.length > 0 || ratingFromUrl.length > 0 || pricesFromUrl.length > 0 || openingHoursParam) {
-        setSelectedTags(tagsFromUrl);
-        setRating(ratingFromUrl);
-        setPrices(pricesFromUrl);
-        if (openingHoursParam) {
-          setTimeFrom(openingHoursParam);
-        } else {
-          setTimeFrom('9:00 a.m.');
-        }
-        setTimeTo('9:00 p.m.');
-      } else {
-        const savedFilters = getFilters();
-        if (savedFilters) {
-          setSelectedTags(savedFilters.tags || []);
-          setRating(savedFilters.rating || []);
-          setPrices(savedFilters.prices || []);
-          setTimeFrom(savedFilters.timeFrom || '9:00 a.m.');
-          setTimeTo(savedFilters.timeTo || '9:00 p.m.');
-        } else {
-          setSelectedTags([]);
-          setRating([]);
-          setPrices([]);
-          setTimeFrom('9:00 a.m.');
-          setTimeTo('9:00 p.m.');
-        }
-      }
+      setSelectedTags(filters.tags);
+      setRating(filters.rating);
+      setPrices(filters.prices);
+      setTimeFrom(filters.timeFrom || '9:00 a.m.');
+      setTimeTo(filters.timeTo || '9:00 p.m.');
     }
-  }, [isOpen, searchParams]);
+  }, [isOpen, filters]);
 
   useEffect(() => {
     if (isOpen) {
-      // Store the previously focused element
-      previousActiveElement.current = document.activeElement as HTMLElement;
-      
       const loadTags = async () => {
         setIsLoadingTags(true);
         try {
@@ -105,57 +73,8 @@ export const FilterModal: React.FC<Props> = ({ isOpen, onClose }) => {
         }
       };
       loadTags();
-
-      // Focus the close button when modal opens
-      setTimeout(() => {
-        closeButtonRef.current?.focus();
-      }, 100);
-
-      // Handle ESC key to close modal
-      const handleEscape = (e: KeyboardEvent) => {
-        if (e.key === 'Escape') {
-          onClose();
-        }
-      };
-
-      document.addEventListener('keydown', handleEscape);
-
-      // Focus trap
-      const handleTabKey = (e: KeyboardEvent) => {
-        if (e.key !== 'Tab' || !modalRef.current) return;
-
-        const focusableElements = modalRef.current.querySelectorAll<HTMLElement>(
-          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-        );
-        
-        const firstElement = focusableElements[0];
-        const lastElement = focusableElements[focusableElements.length - 1];
-
-        if (e.shiftKey) {
-          // Shift + Tab
-          if (document.activeElement === firstElement) {
-            e.preventDefault();
-            lastElement?.focus();
-          }
-        } else {
-          // Tab
-          if (document.activeElement === lastElement) {
-            e.preventDefault();
-            firstElement?.focus();
-          }
-        }
-      };
-
-      document.addEventListener('keydown', handleTabKey);
-
-      return () => {
-        document.removeEventListener('keydown', handleEscape);
-        document.removeEventListener('keydown', handleTabKey);
-        // Return focus to the previously focused element
-        previousActiveElement.current?.focus();
-      };
     }
-  }, [isOpen, onClose]);
+  }, [isOpen]);
 
   useEffect(() => {
     const minutesFrom = parseTime(timeFrom);
@@ -185,20 +104,20 @@ export const FilterModal: React.FC<Props> = ({ isOpen, onClose }) => {
     setTimeTo('9:00 p.m.');
     setTimeFrom('9:00 a.m.');
     setTimeError(null);
-    clearStoredFilters();
   };
 
   const handleApply = () => {
     if (timeError) return;
 
-    const filterState: FilterState = {
+    const newFilters: FilterState = {
       tags: selectedTags,
       rating: rating,
       prices: prices,
       timeFrom: timeFrom,
       timeTo: timeTo
     };
-    saveFilters(filterState);
+    
+    setFilters(newFilters); 
 
     const params = new URLSearchParams();
     
@@ -230,16 +149,11 @@ export const FilterModal: React.FC<Props> = ({ isOpen, onClose }) => {
 
   return (
     <div className={styles.overlay} onClick={onClose}>
-      <div className={styles.modal} ref={modalRef} onClick={e => e.stopPropagation()} role="dialog" aria-modal="true" aria-labelledby="filter-modal-title">
+      <div className={styles.modal} onClick={e => e.stopPropagation()}>
         
         <div className={styles.header}>
-          <h2 id="filter-modal-title">Filters</h2>
-          <button 
-            ref={closeButtonRef}
-            className={styles.closeBtn} 
-            onClick={onClose}
-            aria-label="Close filters"
-          >
+          <h2>Filters</h2>
+          <button className={styles.closeBtn} onClick={onClose}>
             <img src="/img/icons/Close.svg" alt="Close" />
           </button>
         </div>
