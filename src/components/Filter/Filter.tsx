@@ -32,6 +32,28 @@ const parseTime = (timeStr: string): number => {
   return hours * 60 + minutes;
 };
 
+const convertTo24Hour = (time12h: string): string => {
+  if (!time12h) return '';
+  
+  const parts = time12h.split(' ');
+  if (parts.length < 2) return time12h;
+
+  const [time, modifier] = parts;
+  
+  const [rawHours, minutes] = time.split(':');
+  let hours = rawHours;
+
+  if (hours === '12') {
+    hours = '00';
+  }
+
+  if (modifier === 'p.m.') {
+    hours = (parseInt(hours, 10) + 12).toString();
+  }
+
+  return `${hours.padStart(2, '0')}:${minutes}`;
+};
+
 export const FilterModal: React.FC<Props> = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams(); 
@@ -64,11 +86,27 @@ export const FilterModal: React.FC<Props> = ({ isOpen, onClose }) => {
         setRating(ratingFromUrl);
         setPrices(pricesFromUrl);
         if (openingHoursParam) {
-          setTimeFrom(openingHoursParam);
+          // Парсим диапазон формата "21:00-22:00"
+          const [timeFrom24, timeTo24] = openingHoursParam.split('-');
+          if (timeFrom24 && timeTo24) {
+            // Конвертируем обратно в 12-часовой формат для отображения
+            const convertFrom24To12 = (time24: string): string => {
+              const [hours, minutes] = time24.split(':').map(Number);
+              if (hours === 0) return `12:${minutes.toString().padStart(2, '0')} a.m.`;
+              if (hours < 12) return `${hours}:${minutes.toString().padStart(2, '0')} a.m.`;
+              if (hours === 12) return `12:${minutes.toString().padStart(2, '0')} p.m.`;
+              return `${hours - 12}:${minutes.toString().padStart(2, '0')} p.m.`;
+            };
+            setTimeFrom(convertFrom24To12(timeFrom24.trim()));
+            setTimeTo(convertFrom24To12(timeTo24.trim()));
+          } else {
+            setTimeFrom('9:00 a.m.');
+            setTimeTo('9:00 p.m.');
+          }
         } else {
           setTimeFrom('9:00 a.m.');
+          setTimeTo('9:00 p.m.');
         }
-        setTimeTo('9:00 p.m.');
       } else {
         const savedFilters = getFilters();
         if (savedFilters) {
@@ -90,7 +128,6 @@ export const FilterModal: React.FC<Props> = ({ isOpen, onClose }) => {
 
   useEffect(() => {
     if (isOpen) {
-      // Store the previously focused element
       previousActiveElement.current = document.activeElement as HTMLElement;
       
       const loadTags = async () => {
@@ -106,12 +143,10 @@ export const FilterModal: React.FC<Props> = ({ isOpen, onClose }) => {
       };
       loadTags();
 
-      // Focus the close button when modal opens
       setTimeout(() => {
         closeButtonRef.current?.focus();
       }, 100);
 
-      // Handle ESC key to close modal
       const handleEscape = (e: KeyboardEvent) => {
         if (e.key === 'Escape') {
           onClose();
@@ -120,7 +155,6 @@ export const FilterModal: React.FC<Props> = ({ isOpen, onClose }) => {
 
       document.addEventListener('keydown', handleEscape);
 
-      // Focus trap
       const handleTabKey = (e: KeyboardEvent) => {
         if (e.key !== 'Tab' || !modalRef.current) return;
 
@@ -132,13 +166,11 @@ export const FilterModal: React.FC<Props> = ({ isOpen, onClose }) => {
         const lastElement = focusableElements[focusableElements.length - 1];
 
         if (e.shiftKey) {
-          // Shift + Tab
           if (document.activeElement === firstElement) {
             e.preventDefault();
             lastElement?.focus();
           }
         } else {
-          // Tab
           if (document.activeElement === lastElement) {
             e.preventDefault();
             firstElement?.focus();
@@ -151,7 +183,6 @@ export const FilterModal: React.FC<Props> = ({ isOpen, onClose }) => {
       return () => {
         document.removeEventListener('keydown', handleEscape);
         document.removeEventListener('keydown', handleTabKey);
-        // Return focus to the previously focused element
         previousActiveElement.current?.focus();
       };
     }
@@ -206,8 +237,10 @@ export const FilterModal: React.FC<Props> = ({ isOpen, onClose }) => {
     prices.forEach(p => params.append('priceRating', p.toString()));
     rating.forEach(r => params.append('rating', r.toString()));
     
-    if (timeFrom && timeFrom !== '9:00 a.m.') {
-      params.append('openingHours', timeFrom);
+    if (timeFrom && timeFrom !== '9:00 a.m.' && timeTo && timeTo !== '9:00 p.m.') {
+      const timeFrom24 = convertTo24Hour(timeFrom);
+      const timeTo24 = convertTo24Hour(timeTo);
+      params.append('openingHours', `${timeFrom24}-${timeTo24}`);
     }
 
     params.append('size', '100');

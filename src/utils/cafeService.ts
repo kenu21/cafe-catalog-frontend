@@ -170,9 +170,10 @@ export const filterCafes = async (filters: FilterState): Promise<Cafe[]> => {
     filters.rating.forEach((r: number) => params.append('rating', r.toString()));
   }
 
-  if (filters.timeFrom && filters.timeFrom !== '9:00 a.m.') {
-    const time24h = convertTo24Hour(filters.timeFrom);
-    params.append('openingHours', time24h);
+  if (filters.timeFrom && filters.timeFrom !== '9:00 a.m.' && filters.timeTo && filters.timeTo !== '9:00 p.m.') {
+    const timeFrom24h = convertTo24Hour(filters.timeFrom);
+    const timeTo24h = convertTo24Hour(filters.timeTo);
+    params.append('openingHours', `${timeFrom24h}-${timeTo24h}`);
   }
 
   params.append('size', '100');
